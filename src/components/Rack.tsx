@@ -3,6 +3,7 @@ import { dealerOf, seatWind, type GameState } from '../engine/game'
 import { WIND_CHAR, sortTiles, tileName, type StandardId } from '../engine/tiles'
 import { HUMAN } from '../hooks/useGame'
 import { WIND_NAME, formatPoints } from '../names'
+import { play } from '../sound'
 import { Flowers, MeldRow } from './Melds'
 import Tile from './Tile'
 
@@ -28,7 +29,10 @@ export default function Rack({ state, selected, onSelect, onDiscard }: Props) {
   function tap(key: string, tile: StandardId) {
     if (!myTurn) return
     if (selected === key) onDiscard(tile)
-    else onSelect(key)
+    else {
+      play('pick')
+      onSelect(key)
+    }
   }
 
   function onKey(e: KeyboardEvent<HTMLDivElement>) {

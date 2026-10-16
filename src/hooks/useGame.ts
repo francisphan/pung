@@ -20,8 +20,9 @@ export type Speed = 'slow' | 'normal' | 'fast'
 export interface Settings {
   speed: Speed
   rules: Rules
+  sound: boolean
 }
-export const DEFAULT_SETTINGS: Settings = { speed: 'normal', rules: DEFAULT_RULES }
+export const DEFAULT_SETTINGS: Settings = { speed: 'normal', rules: DEFAULT_RULES, sound: true }
 
 const DELAY: Record<Speed, number> = { slow: 1300, normal: 700, fast: 220 }
 

@@ -4,12 +4,14 @@ import Lobby from './components/Lobby'
 import Result from './components/Result'
 import Table from './components/Table'
 import { useGame } from './hooks/useGame'
+import { useSounds } from './hooks/useSounds'
 
 export default function App() {
   const game = useGame()
   const { state } = game
   const [lobby, setLobby] = useState(false)
   const showLobby = lobby || !state
+  useSounds(state, game.settings.sound)
 
   return (
     <div className="app">
@@ -21,6 +23,14 @@ export default function App() {
           </span>
         </h1>
         <nav className="masthead-nav">
+          <button
+            type="button"
+            className="link-btn"
+            aria-pressed={game.settings.sound}
+            onClick={() => game.setSettings({ sound: !game.settings.sound })}
+          >
+            {game.settings.sound ? 'Sound off' : 'Sound on'}
+          </button>
           {state && !showLobby && (
             <button type="button" className="link-btn" onClick={() => setLobby(true)}>
               New game
