@@ -1,6 +1,6 @@
 /**
- * Table sounds: short recordings of real tiles, served from public/sounds
- * and played through <audio> elements. Media elements keep playing on an
+ * Table sounds: short recordings of pieces set down on a wooden board, soft
+ * and low, served from public/sounds and played through <audio> elements. Media elements keep playing on an
  * iPad whose ringer is muted, where synthesised Web Audio goes silent, and
  * they need nothing but one tap on the page before the first sound.
  */
@@ -26,7 +26,7 @@ export const TAKES: Record<Cue, string[]> = {
 const VOICES: Record<Cue, number> = { pick: 2, discard: 2, claim: 2, kong: 1, draw: 2, deal: 1, win: 1, exhausted: 1, flower: 2 }
 
 /** Relative levels. iOS ignores element volume, so the files are also mastered to these levels. */
-const VOLUME: Record<Cue, number> = { pick: 0.45, discard: 1, claim: 1, kong: 1, draw: 0.6, deal: 0.8, win: 1, exhausted: 0.8, flower: 0.7 }
+const VOLUME: Record<Cue, number> = { pick: 0.35, discard: 0.75, claim: 0.75, kong: 0.75, draw: 0.5, deal: 0.55, win: 0.7, exhausted: 0.6, flower: 0.5 }
 
 const pools = new Map<string, HTMLAudioElement[]>()
 const timers = new Set<ReturnType<typeof setTimeout>>()

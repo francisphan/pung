@@ -28,24 +28,27 @@ The line-art faces (the "Line art" option) were drawn in code for
 ## Sounds
 
 The table sounds in `public/sounds/` are cut from recordings on
-[Freesound](https://freesound.org/) and served from this site as small MP3 files.
+[Freesound](https://freesound.org/), all released under
+[CC0](https://creativecommons.org/publicdomain/zero/1.0/), and served from this
+site as small MP3 files. The strikes are chess pieces set down on a wooden
+board: soft and low rather than the sharp clack of real tiles.
 
-| Cue files | Source | Author | Licence |
-| --- | --- | --- | --- |
-| `discard-1` to `discard-4`, `claim`, `kong`, `exhausted` | [Majiang Playing](https://freesound.org/people/soloan/sounds/82702/), a real game recorded at the table | soloan | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
-| `pick`, `flower` | [Domino 2](https://freesound.org/people/mmaruska/sounds/182126/) | mmaruska | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
-| `draw` | [Domino_sfx_moveTile](https://freesound.org/people/poenia/sounds/745028/) | poenia | CC0 |
-| `deal` | [shuffle_.mp3](https://freesound.org/people/UnycodeAdmin/sounds/705352/) | UnycodeAdmin | CC0 |
-| `win` | [tiles fall on corkboard](https://freesound.org/people/Detective_Lemons/sounds/785585/) | Detective_Lemons | CC0 |
+| Cue files | Source | Author |
+| --- | --- | --- |
+| `discard-1` to `discard-4`, `claim`, `kong`, `exhausted` | [Chess_foley.mp3](https://freesound.org/people/Amatsuuu/sounds/629181/) | Amatsuuu |
+| `pick`, `flower` | [Chess Pieces Move (Close)](https://freesound.org/people/JJTaynos/sounds/733927/) | JJTaynos |
+| `draw` | [Domino_sfx_moveTile](https://freesound.org/people/poenia/sounds/745028/) | poenia |
+| `deal` | [shuffle_.mp3](https://freesound.org/people/UnycodeAdmin/sounds/705352/) | UnycodeAdmin |
+| `win` | [tiles fall on corkboard](https://freesound.org/people/Detective_Lemons/sounds/785585/) | Detective_Lemons |
 
-Processing: single tile strikes were located by their sharp attack and cut to
-about a quarter of a second with short fades; the table recording was
-high-passed at 110 Hz and lightly denoised; `claim` and `kong` are two and
-three strikes mixed 80 to 85 ms apart; `exhausted` is one strike slowed to
-68% and low-passed; `deal` and `win` are trimmed excerpts. Levels were set per
-cue (strikes near full scale, the pick-up click 12 dB lower) because iPad
-Safari ignores volume changes on audio elements. Encoded with ffmpeg
-(libmp3lame, mono, 96 kb/s).
+Processing: single placements were located by their sharp attack and cut to
+about three tenths of a second with short fades, high-passed at 45 Hz,
+low-passed at 3.2 kHz and lightly denoised; `claim` and `kong` are two and
+three placements mixed 85 to 90 ms apart; `exhausted` is one placement slowed
+to 75% and low-passed at 900 Hz; `draw`, `deal` and `win` are trimmed excerpts
+low-passed between 1.6 and 2.2 kHz. Peaks sit well below full scale (strikes
+at -9 dBFS, the pick-up at -19 dBFS) because iPad Safari ignores volume
+changes on audio elements. Encoded with ffmpeg (libmp3lame, mono, 96 kb/s).
 
 ## Fonts
 
