@@ -15,17 +15,16 @@ export function useSounds(state: GameState | null, enabled: boolean) {
   }, [enabled])
 
   // Browsers only let sound start after a gesture; take the first one.
+  // Safari on iPad counts touchend and click, so listen for those as well.
   useEffect(() => {
+    const events = ['touchend', 'click', 'keydown', 'pointerdown'] as const
     const once = () => {
       unlock()
-      window.removeEventListener('pointerdown', once)
-      window.removeEventListener('keydown', once)
+      for (const e of events) window.removeEventListener(e, once)
     }
-    window.addEventListener('pointerdown', once)
-    window.addEventListener('keydown', once)
+    for (const e of events) window.addEventListener(e, once)
     return () => {
-      window.removeEventListener('pointerdown', once)
-      window.removeEventListener('keydown', once)
+      for (const e of events) window.removeEventListener(e, once)
     }
   }, [])
 

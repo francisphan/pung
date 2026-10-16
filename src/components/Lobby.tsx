@@ -114,7 +114,9 @@ export default function Lobby({ settings, inProgress, onStart, onSettings, onBac
       <p className="lobby-credit">
         Classic tile faces by{' '}
         <a href="https://commons.wikimedia.org/wiki/Category:SVG_mahjong_tiles">Cangjie6, Wikimedia Commons</a>,{' '}
-        <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Sounds cut from recordings on{' '}
+        <a href="https://freesound.org/">Freesound</a> (CC0, and Domino 2 by mmaruska, CC BY 4.0); see{' '}
+        <a href="https://github.com/francisphan/pung/blob/main/CREDITS.md">credits</a>.
       </p>
     </div>
   )
