@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { useContext, type ReactNode } from 'react'
+import { TileStyleContext } from '../tileStyle'
 import {
   CHINESE_NUMERAL,
   DRAGON_CHAR,
@@ -12,9 +13,14 @@ import {
   type TileId,
 } from '../engine/tiles'
 
-/** Tile face is 60 wide and 80 tall; the extra 4 is the visible edge below it. */
+/** Line-art tile face is 60 wide and 80 tall; the extra 4 is the visible edge below it. */
 export const TILE_W = 60
 export const TILE_H = 84
+
+/** The classic faces are 210 wide and 255 tall, including the tile's edge. */
+export const CLASSIC_W = 210
+export const CLASSIC_H = 255
+const SPRITE = `${import.meta.env.BASE_URL}tiles.svg`
 
 type Ink = 'ink' | 'red' | 'green' | 'blue'
 
@@ -339,22 +345,32 @@ export interface TileProps extends TileFaceProps {
   decorative?: boolean
 }
 
-/** A standalone tile as an inline SVG. */
+/** A standalone tile as an inline SVG, in whichever style the table is set to. */
 export default function Tile({ id, hint, size = 60, back = false, turned = false, className, decorative }: TileProps) {
-  const h = (size * TILE_H) / TILE_W
+  const style = useContext(TileStyleContext)
+  const classic = style === 'classic'
+  const w0 = classic ? CLASSIC_W : TILE_W
+  const h0 = classic ? CLASSIC_H : TILE_H
+  const h = (size * h0) / w0
   const label = back ? 'Face-down tile' : tileName(id)
-  const body = back ? <TileBack /> : <TileFace id={id} hint={hint} />
+  const body = classic ? (
+    <use href={`${SPRITE}#${back ? 'BACK' : id}`} width={w0} height={h0} />
+  ) : back ? (
+    <TileBack />
+  ) : (
+    <TileFace id={id} hint={hint} />
+  )
   return (
     <svg
-      className={`tile-svg${className ? ` ${className}` : ''}`}
+      className={`tile-svg tile-${style}${className ? ` ${className}` : ''}`}
       width={turned ? h : size}
       height={turned ? size : h}
-      viewBox={turned ? `0 0 ${TILE_H} ${TILE_W}` : `0 0 ${TILE_W} ${TILE_H}`}
+      viewBox={turned ? `0 0 ${h0} ${w0}` : `0 0 ${w0} ${h0}`}
       role={decorative ? undefined : 'img'}
       aria-hidden={decorative || undefined}
       aria-label={decorative ? undefined : label}
     >
-      {turned ? <g transform="translate(12 -12) rotate(90 30 42)">{body}</g> : body}
+      {turned ? <g transform={`translate(${h0} 0) rotate(90)`}>{body}</g> : body}
     </svg>
   )
 }

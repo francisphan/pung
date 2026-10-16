@@ -3,6 +3,7 @@ import GameOver from './components/GameOver'
 import Lobby from './components/Lobby'
 import Result from './components/Result'
 import Table from './components/Table'
+import { TileStyleContext } from './tileStyle'
 import { useGame } from './hooks/useGame'
 import { useSounds } from './hooks/useSounds'
 
@@ -14,6 +15,7 @@ export default function App() {
   useSounds(state, game.settings.sound)
 
   return (
+    <TileStyleContext.Provider value={game.settings.tiles}>
     <div className="app">
       <header className="masthead">
         <h1 className="wordmark">
@@ -79,5 +81,6 @@ export default function App() {
         )}
       </main>
     </div>
+    </TileStyleContext.Provider>
   )
 }

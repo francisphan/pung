@@ -12,6 +12,7 @@ import {
 } from '../engine/game'
 import { randomSeed } from '../engine/rng'
 import type { StandardId } from '../engine/tiles'
+import type { TileStyle } from '../tileStyle'
 
 /** The person always sits at seat 0. */
 export const HUMAN: Seat = 0
@@ -21,8 +22,9 @@ export interface Settings {
   speed: Speed
   rules: Rules
   sound: boolean
+  tiles: TileStyle
 }
-export const DEFAULT_SETTINGS: Settings = { speed: 'normal', rules: DEFAULT_RULES, sound: true }
+export const DEFAULT_SETTINGS: Settings = { speed: 'normal', rules: DEFAULT_RULES, sound: true, tiles: 'classic' }
 
 const DELAY: Record<Speed, number> = { slow: 1300, normal: 700, fast: 220 }
 

@@ -324,9 +324,11 @@ a {
   line-height: 0;
 }
 
-.river-latest .tile-bone {
-  stroke: var(--lacquer);
-  stroke-width: 3;
+.river-latest .tile-svg,
+.hand-tile-picked .tile-svg,
+.win-tile .tile-svg {
+  box-shadow: 0 0 0 3px var(--lacquer);
+  border-radius: 12% / 10%;
 }
 
 .river-latest {
@@ -583,11 +585,6 @@ a {
   transform: translateY(-14px);
 }
 
-.hand-tile-picked .tile-bone {
-  stroke: var(--lacquer);
-  stroke-width: 3;
-}
-
 .hand-tile:focus-visible,
 .act:focus-visible,
 .link-btn:focus-visible,
@@ -774,11 +771,6 @@ a {
   gap: 2px;
 }
 
-.win-tile .tile-bone {
-  stroke: var(--lacquer);
-  stroke-width: 3;
-}
-
 .score-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -963,6 +955,15 @@ a {
 }
 
 .lobby-foot {
+  color: var(--bone-dim);
+}
+
+.lobby-credit {
+  color: var(--bone-dim);
+  font-size: 14px;
+}
+
+.lobby-credit a {
   color: var(--bone-dim);
 }
 

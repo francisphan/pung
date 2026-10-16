@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Rules } from '../engine/game'
 import type { Settings, Speed } from '../hooks/useGame'
+import type { TileStyle } from '../tileStyle'
 import Tile from './Tile'
 
 interface Props {
@@ -70,6 +71,15 @@ export default function Lobby({ settings, inProgress, onStart, onSettings, onBac
         ]}
         onChange={(rounds) => setRules({ ...rules, rounds })}
       />
+      <Choice<TileStyle>
+        label="Tile faces"
+        value={settings.tiles}
+        options={[
+          { value: 'classic', label: 'Classic', note: 'the faces most sets use' },
+          { value: 'line', label: 'Line art', note: 'drawn for Sparrow' },
+        ]}
+        onChange={(tiles) => onSettings({ tiles })}
+      />
       <Choice<Speed>
         label="Opponents' pace"
         value={settings.speed}
@@ -100,6 +110,11 @@ export default function Lobby({ settings, inProgress, onStart, onSettings, onBac
       <p className="lobby-foot">
         New to the game? <a href="https://francisphan.github.io/sparrow/">Sparrow</a> teaches the tiles, the sets and
         the scoring from scratch.
+      </p>
+      <p className="lobby-credit">
+        Classic tile faces by{' '}
+        <a href="https://commons.wikimedia.org/wiki/Category:SVG_mahjong_tiles">Cangjie6, Wikimedia Commons</a>,{' '}
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.
       </p>
     </div>
   )

@@ -12,6 +12,7 @@ Pung is the sibling of [Sparrow](https://francisphan.github.io/sparrow/), which 
 - **Every call.** Chow from the player before you, pung and kong from anyone, concealed and added kongs with a replacement draw, robbing a kong, self-drawn wins and wins on a discard. Priority is win, then pung or kong, then chow.
 - **Hong Kong scoring.** Faan for all chows, all pungs, mixed and pure one suit, dragon and wind pungs, self-draw, a concealed hand, flowers, win on the kong, the last tile and robbing the kong, plus the limit hands: big and little three dragons, big and little four winds, all honours, all terminals, thirteen orphans, nine gates, four kongs, heavenly and earthly hands. A three-faan minimum by default (or one, or none), a thirteen-faan limit, points on the half-spicy-up table, and half payment from the two players who did not throw the winning tile.
 - **Opponents that play fair.** Mei, Bo and Ling see only what a player at the table sees: their own rack, the open melds, the discards and the flowers. They judge a discard by how many tiles still bring the hand closer, and they only open a hand when it can still reach the minimum.
+- **The tiles you know.** Faces are the classic designs found on most sets, by Cangjie6 on Wikimedia Commons (CC BY-SA 4.0, see `CREDITS.md`), served as one optimised SVG sprite. The line-art faces drawn for Sparrow are still there as an option in the lobby.
 - **Sounds from the table.** Tiles clack on the felt when thrown, click when picked up, land in pairs for a claim, clatter as each hand is washed and dealt, and run down the rack when a winning hand is laid out. All of it is synthesised in the browser with the Web Audio API, so nothing is downloaded; "Sound off" in the masthead mutes it and the choice is remembered.
 - **Pick up where you left off.** The game is saved in the browser after every move.
 
@@ -31,7 +32,9 @@ npm run lint
 npm run build      # tsc + vite, output in dist/
 ```
 
-React 19, TypeScript, Vite. No UI library. The engine in `src/engine/` is pure and serialisable: `game.ts` is a reducer over a plain `GameState`, `scoring.ts` counts faan, `shanten.ts` measures how far a hand is from ready, and `ai.ts` turns that into decisions. The tile set, the hand validator and the tile artwork are shared with Sparrow.
+React 19, TypeScript, Vite. No UI library. The engine in `src/engine/` is pure and serialisable: `game.ts` is a reducer over a plain `GameState`, `scoring.ts` counts faan, `shanten.ts` measures how far a hand is from ready, and `ai.ts` turns that into decisions. The tile set, the hand validator and the line-art tiles are shared with Sparrow.
+
+To rebuild the classic tile sprite, download Cangjie6's `MJ*-.svg` files from Wikimedia Commons into a folder and run `npm run tiles -- <folder>`; the mapping from file names to tile ids is in `scripts/build-tiles.mjs`.
 
 ## Deploy
 
