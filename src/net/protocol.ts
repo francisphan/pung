@@ -5,7 +5,6 @@
  */
 import type { Action, GameState, Rules, Seat } from '../engine/game'
 import { TILE_BY_ID } from '../engine/tiles'
-import { SPEEDS, type Speed } from '../pace'
 
 /** Table codes avoid letters and digits that read alike: no I, O, 0 or 1. */
 export const CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -45,7 +44,6 @@ export interface RoomInfo {
   /** Member id of the host, who sets the rules and deals. */
   host: string
   rules: Rules
-  speed: Speed
   seats: SeatInfo[]
   /** Members without a seat yet; only possible in the lobby. */
   waiting: { id: string; name: string }[]
@@ -57,12 +55,11 @@ export interface RoomInfo {
 export type TableAction = Exclude<Action, { type: 'newGame' }>
 
 export type ClientMessage =
-  | { type: 'create'; id: string; name: string; rules: Rules; speed: Speed }
+  | { type: 'create'; id: string; name: string; rules: Rules }
   | { type: 'join'; id: string; name: string; code: string }
   | { type: 'sit'; seat: Seat }
   | { type: 'bot'; seat: Seat; on: boolean }
   | { type: 'rules'; rules: Rules }
-  | { type: 'speed'; speed: Speed }
   | { type: 'start' }
   | { type: 'action'; action: TableAction }
   | { type: 'again' }
@@ -89,10 +86,6 @@ export function cleanRules(raw: unknown): Rules | null {
   if (typeof minimumFaan !== 'number' || !Number.isInteger(minimumFaan) || minimumFaan < 0 || minimumFaan > 13) return null
   if (rounds !== 1 && rounds !== 4) return null
   return { minimumFaan, rounds }
-}
-
-function cleanSpeed(raw: unknown): Speed | null {
-  return SPEEDS.includes(raw as Speed) ? (raw as Speed) : null
 }
 
 function cleanDecision(raw: unknown): boolean {
@@ -140,8 +133,7 @@ export function parseClientMessage(raw: unknown): ClientMessage | null {
   switch (raw.type) {
     case 'create': {
       const rules = cleanRules(raw.rules)
-      const speed = cleanSpeed(raw.speed)
-      return isId(raw.id) && rules && speed ? { type: 'create', id: raw.id, name: cleanName(raw.name), rules, speed } : null
+      return isId(raw.id) && rules ? { type: 'create', id: raw.id, name: cleanName(raw.name), rules } : null
     }
     case 'join': {
       const code = cleanCode(raw.code)
@@ -154,10 +146,6 @@ export function parseClientMessage(raw: unknown): ClientMessage | null {
     case 'rules': {
       const rules = cleanRules(raw.rules)
       return rules ? { type: 'rules', rules } : null
-    }
-    case 'speed': {
-      const speed = cleanSpeed(raw.speed)
-      return speed ? { type: 'speed', speed } : null
     }
     case 'action': {
       const action = cleanAction(raw.action)

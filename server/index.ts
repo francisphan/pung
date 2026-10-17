@@ -132,7 +132,7 @@ wss.on('connection', (ws, req) => {
           if (rooms.size >= MAX_ROOMS) throw new RoomError('The server has no room for another table right now.')
           const code = freshCode()
           attach(code, msg.id)
-          const room = new Room(code, { id: msg.id, name: msg.name }, msg.rules, msg.speed, realClock, deliver(code))
+          const room = new Room(code, { id: msg.id, name: msg.name }, msg.rules, realClock, deliver(code))
           rooms.set(code, room)
           log(`room ${code} created by ${msg.name}`)
           return

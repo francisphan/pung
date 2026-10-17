@@ -8,7 +8,6 @@ import { Host } from '../net/host'
 import type { Handlers, Link } from '../net/link'
 import { PeerLink } from '../net/peerLink'
 import type { ClientMessage, RoomInfo, SeatInfo, ServerMessage } from '../net/protocol'
-import type { Speed } from '../pace'
 import type { RoomSnapshot } from '../table/room'
 import { clear, load, save } from './useGame'
 
@@ -170,7 +169,7 @@ export function useRoom(serverUrl: string | null, name: string) {
 
   /** Open the right kind of link for the role. */
   const open = useCallback(
-    (what: { role: 'guest'; code: string } | { role: 'host'; rules: Rules; speed: Speed; snapshot?: RoomSnapshot | null }) => {
+    (what: { role: 'guest'; code: string } | { role: 'host'; rules: Rules; snapshot?: RoomSnapshot | null }) => {
       link.current?.close()
       role.current = what.role
       if (serverUrl) {
@@ -184,7 +183,6 @@ export function useRoom(serverUrl: string | null, name: string) {
       const host = new Host({
         me: { id, name: nameRef.current },
         rules: what.rules,
-        speed: what.speed,
         snapshot: what.snapshot ?? null,
         handlers,
         onSnapshot: (snap) => {
@@ -209,7 +207,7 @@ export function useRoom(serverUrl: string | null, name: string) {
         open({ role: 'guest', code: stored.code })
       } else {
         const snapshot = load<RoomSnapshot>(TABLE_KEY)
-        if (snapshot && snapshot.code === stored.code) open({ role: 'host', rules: snapshot.rules, speed: snapshot.speed, snapshot })
+        if (snapshot && snapshot.code === stored.code) open({ role: 'host', rules: snapshot.rules, snapshot })
         else drop()
       }
     }
@@ -227,12 +225,12 @@ export function useRoom(serverUrl: string | null, name: string) {
     const seat = () => latest.current.room?.you.seat ?? 0
     const action = (a: Extract<ClientMessage, { type: 'action' }>['action']) => send({ type: 'action', action: a })
     return {
-      host(rules: Rules, speed: Speed) {
+      host(rules: Rules) {
         const viaServer = !!serverUrl
-        intent.current = viaServer ? { type: 'create', id, name: nameRef.current, rules, speed } : null
+        intent.current = viaServer ? { type: 'create', id, name: nameRef.current, rules } : null
         dispatch({ type: 'busy', hosting: !viaServer })
         dispatch({ type: 'conn', conn: 'connecting' })
-        open({ role: 'host', rules, speed })
+        open({ role: 'host', rules })
         if (intent.current) link.current?.send(intent.current)
       },
       join(code: string) {
@@ -258,9 +256,6 @@ export function useRoom(serverUrl: string | null, name: string) {
       },
       setRules(rules: Rules) {
         send({ type: 'rules', rules })
-      },
-      setSpeed(speed: Speed) {
-        send({ type: 'speed', speed })
       },
       start() {
         send({ type: 'start' })

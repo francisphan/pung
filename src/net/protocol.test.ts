@@ -23,12 +23,11 @@ describe('codes and names', () => {
 describe('parseClientMessage', () => {
   it('accepts well-formed messages', () => {
     expect(parseClientMessage({ type: 'join', id: 'p1', name: 'Bo', code: 'abcd' })).toEqual({ type: 'join', id: 'p1', name: 'Bo', code: 'ABCD' })
-    expect(parseClientMessage({ type: 'create', id: 'p1', name: '', rules: { minimumFaan: 3, rounds: 4 }, speed: 'slow' })).toEqual({
+    expect(parseClientMessage({ type: 'create', id: 'p1', name: '', rules: { minimumFaan: 3, rounds: 4 } })).toEqual({
       type: 'create',
       id: 'p1',
       name: 'Guest',
       rules: { minimumFaan: 3, rounds: 4 },
-      speed: 'slow',
     })
     expect(parseClientMessage({ type: 'action', action: { type: 'discard', seat: 2, tile: 'C5' } })).toEqual({
       type: 'action',
@@ -50,8 +49,8 @@ describe('parseClientMessage', () => {
       { type: 'join' },
       { type: 'join', id: 'p', name: 'x', code: 'AB' },
       { type: 'join', id: '', name: 'x', code: 'ABCD' },
-      { type: 'create', id: 'p', name: 'x', rules: { minimumFaan: 3, rounds: 2 }, speed: 'normal' },
-      { type: 'create', id: 'p', name: 'x', rules: { minimumFaan: 3, rounds: 4 }, speed: 'warp' },
+      { type: 'create', id: 'p', name: 'x', rules: { minimumFaan: 3, rounds: 2 } },
+      { type: 'create', id: 'p', name: 'x' },
       { type: 'action', action: { type: 'discard', seat: 4, tile: 'C5' } },
       { type: 'action', action: { type: 'discard', seat: 1, tile: 'XX' } },
       { type: 'action', action: { type: 'newGame', rules: { minimumFaan: 0, rounds: 1 }, seed: 1 } },

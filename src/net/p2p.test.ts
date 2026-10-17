@@ -48,7 +48,6 @@ describe('a table in the host’s browser', () => {
     const host = new Host({
       me: { id: 'h', name: 'Host' },
       rules: RULES,
-      speed: 'fast',
       factory: net.factory,
       clock: stillClock(),
       codes: () => 'ABCD',
@@ -127,7 +126,6 @@ describe('a table in the host’s browser', () => {
     const host2 = new Host({
       me: { id: 'h', name: 'Host' },
       rules: RULES,
-      speed: 'fast',
       snapshot: snap,
       factory: net.factory,
       clock: stillClock(),
@@ -164,7 +162,6 @@ describe('a table in the host’s browser', () => {
     const host = new Host({
       me: { id: 'h', name: 'Host' },
       rules: RULES,
-      speed: 'fast',
       factory: net.factory,
       clock: stillClock(),
       codes: () => codes[i++],

@@ -12,8 +12,6 @@ export function dispatch(room: Room, id: string, msg: TableMessage): void {
       return room.setBot(id, msg.seat, msg.on)
     case 'rules':
       return room.setRules(id, msg.rules)
-    case 'speed':
-      return room.setSpeed(id, msg.speed)
     case 'start':
       return room.start(id)
     case 'action':

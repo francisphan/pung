@@ -1,5 +1,4 @@
 import type { Rules } from '../engine/game'
-import type { Speed } from '../pace'
 import { newCode } from '../table/codes'
 import { dispatch } from '../table/dispatch'
 import { Room, RoomError, realClock, type Clock, type RoomSnapshot } from '../table/room'
@@ -10,7 +9,6 @@ import { parseClientMessage, type ClientMessage, type ServerMessage } from './pr
 export interface HostOptions {
   me: { id: string; name: string }
   rules: Rules
-  speed: Speed
   /** Reopen a table this browser was already running. */
   snapshot?: RoomSnapshot | null
   handlers: Handlers
@@ -94,7 +92,7 @@ export class Host implements Link {
       this.room.onChange = () => this.o.onSnapshot?.(this.room!.snapshot())
       this.room.join(this.o.me.id, this.o.me.name)
     } else {
-      const room = new Room(this.code, null, this.o.rules, this.o.speed, clock, send)
+      const room = new Room(this.code, null, this.o.rules, clock, send)
       room.onChange = () => this.o.onSnapshot?.(room.snapshot())
       this.room = room
       room.join(this.o.me.id, this.o.me.name)

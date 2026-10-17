@@ -2,8 +2,7 @@ import { useState, type FormEvent } from 'react'
 import type { Rules } from '../engine/game'
 import type { Settings } from '../hooks/useGame'
 import { NAME_MAX, cleanCode } from '../net/protocol'
-import type { Speed } from '../pace'
-import { PaceChoice, RuleChoices } from './Choice'
+import { RuleChoices } from './Choice'
 import Tile from './Tile'
 
 interface Props {
@@ -13,7 +12,7 @@ interface Props {
   /** A code from a shared link, to fill in. */
   joinCode: string | null
   onStart: (rules: Rules) => void
-  onHost: (rules: Rules, speed: Speed) => void
+  onHost: (rules: Rules) => void
   onJoin: (code: string) => void
   onSettings: (patch: Partial<Settings>) => void
   onBack: () => void
@@ -43,7 +42,6 @@ export default function Lobby({ settings, inProgress, online, joinCode, onStart,
         again to discard. When a discard suits you, the table offers chow, pung, kong or the win.
       </p>
       <RuleChoices rules={rules} onChange={setRules} />
-      <PaceChoice value={settings.speed} onChange={(speed) => onSettings({ speed })} />
       <div className="lobby-actions">
         <button
           type="button"
@@ -93,7 +91,7 @@ export default function Lobby({ settings, inProgress, online, joinCode, onStart,
                 disabled={online.busy}
                 onClick={() => {
                   onSettings({ rules })
-                  onHost(rules, settings.speed)
+                  onHost(rules)
                 }}
               >
                 Host a table

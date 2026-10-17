@@ -5,13 +5,12 @@ import { randomSeed } from '../engine/rng'
 import type { StandardId } from '../engine/tiles'
 import { EMPTY_LOG, withState, type LogHistory } from '../log'
 import { SOLO } from '../names'
-import { DELAY, type Speed } from '../pace'
+import { BOT_DELAY } from '../pace'
 
 /** In solo play the person always sits at East. */
 const HUMAN = SOLO.me
 
 export interface Settings {
-  speed: Speed
   rules: Rules
   sound: boolean
   /** Show the table log beside the rack. */
@@ -20,7 +19,6 @@ export interface Settings {
   name: string
 }
 export const DEFAULT_SETTINGS: Settings = {
-  speed: 'normal',
   rules: DEFAULT_RULES,
   sound: true,
   log: true,
@@ -86,7 +84,7 @@ export function useSettings() {
 }
 
 /** Solo play: you against three opponents, run entirely in the browser. */
-export function useGame(speed: Speed) {
+export function useGame() {
   const [{ game: state, log }, dispatch] = useReducer(step, null, (): Solo => {
     const saved = load<unknown>(GAME_KEY)
     const game = isGameState(saved) && saved.phase !== 'gameEnd' ? saved : null
@@ -98,7 +96,7 @@ export function useGame(speed: Speed) {
     else clear(GAME_KEY)
   }, [state])
 
-  const delay = DELAY[speed]
+  const delay = BOT_DELAY
 
   // Let the opponents move.
   useEffect(() => {

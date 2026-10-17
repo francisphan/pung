@@ -4,10 +4,9 @@ import { WIND_CHAR, WINDS } from '../engine/tiles'
 import type { ConnStatus } from '../hooks/useRoom'
 import { WIND_NAME } from '../names'
 import type { RoomInfo, SeatInfo } from '../net/protocol'
-import type { Speed } from '../pace'
 import { joinLink } from '../net/joinLink'
 import { describeRules } from '../rulesText'
-import { PaceChoice, RuleChoices } from './Choice'
+import { RuleChoices } from './Choice'
 
 interface Props {
   room: RoomInfo
@@ -18,7 +17,6 @@ interface Props {
   onSit: (seat: Seat) => void
   onBot: (seat: Seat, on: boolean) => void
   onRules: (rules: Rules) => void
-  onSpeed: (speed: Speed) => void
   onStart: () => void
   onLeave: () => void
   onDismiss: () => void
@@ -86,7 +84,7 @@ function SeatCard({
 }
 
 /** Waiting for friends: the code to share, the seats to choose, and the rules the host sets. */
-export default function RoomLobby({ room, conn, error, hosting, onSit, onBot, onRules, onSpeed, onStart, onLeave, onDismiss }: Props) {
+export default function RoomLobby({ room, conn, error, hosting, onSit, onBot, onRules, onStart, onLeave, onDismiss }: Props) {
   const isHost = room.host === room.you.id
   const host = room.seats.find((s) => s.kind === 'human' && s.id === room.host)
   const hostName = host?.kind === 'human' ? host.name : 'the host'
@@ -145,12 +143,9 @@ export default function RoomLobby({ room, conn, error, hosting, onSit, onBot, on
       )}
 
       {isHost ? (
-        <>
-          <RuleChoices rules={room.rules} onChange={onRules} />
-          <PaceChoice value={room.speed} onChange={onSpeed} />
-        </>
+        <RuleChoices rules={room.rules} onChange={onRules} />
       ) : (
-        <p className="room-rules">{describeRules(room.rules, room.speed)}</p>
+        <p className="room-rules">{describeRules(room.rules)}</p>
       )}
 
       <div className="lobby-actions">

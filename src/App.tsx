@@ -27,7 +27,7 @@ export default function App() {
   const { settings, setSettings } = useSettings()
   const url = useMemo(() => serverUrl(), [])
   const joinCode = useMemo(() => cleanCode(new URLSearchParams(window.location.search).get('join')), [])
-  const solo = useGame(settings.speed)
+  const solo = useGame()
   const online = useRoom(url, settings.name.trim() || 'Guest')
   // A shared link opens the lobby with its code filled in, even over a solo game in progress.
   const [lobby, setLobby] = useState(() => joinCode !== null)
@@ -67,7 +67,6 @@ export default function App() {
           onSit={online.sit}
           onBot={online.setBot}
           onRules={online.setRules}
-          onSpeed={online.setSpeed}
           onStart={online.start}
           onLeave={leave}
           onDismiss={online.dismiss}
@@ -136,9 +135,9 @@ export default function App() {
           solo.start(rules)
           setLobby(false)
         }}
-        onHost={(rules, speed) => {
-          setSettings({ rules, speed })
-          online.host(rules, speed)
+        onHost={(rules) => {
+          setSettings({ rules })
+          online.host(rules)
         }}
         onJoin={online.join}
         onSettings={setSettings}

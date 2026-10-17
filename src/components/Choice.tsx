@@ -1,5 +1,4 @@
 import type { Rules } from '../engine/game'
-import { DELAY, type Speed } from '../pace'
 
 /** A row of radio buttons drawn as tiles. */
 export function Choice<T extends string | number>({
@@ -55,24 +54,5 @@ export function RuleChoices({ rules, onChange, disabled }: { rules: Rules; onCha
         onChange={(rounds) => onChange({ ...rules, rounds })}
       />
     </>
-  )
-}
-
-const seconds = (speed: Speed) => `${(DELAY[speed] / 1000).toFixed(1)} s before each move`
-
-/** How long Mei, Bo and Ling pause before they draw, claim or discard. */
-export function PaceChoice({ value, onChange, disabled }: { value: Speed; onChange: (s: Speed) => void; disabled?: boolean }) {
-  return (
-    <Choice<Speed>
-      label="How quickly the bots play"
-      value={value}
-      disabled={disabled}
-      options={[
-        { value: 'slow', label: 'Slow', note: seconds('slow') },
-        { value: 'normal', label: 'Normal', note: seconds('normal') },
-        { value: 'fast', label: 'Fast', note: 'almost no pause' },
-      ]}
-      onChange={onChange}
-    />
   )
 }

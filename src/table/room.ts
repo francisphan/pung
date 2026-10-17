@@ -10,7 +10,7 @@ import { randomSeed } from '../engine/rng'
 import { viewFor } from '../engine/view'
 import { BOT_NAMES } from '../names'
 import type { RoomInfo, RoomStatus, SeatInfo, ServerMessage, TableAction } from '../net/protocol'
-import { DELAY, type Speed } from '../pace'
+import { BOT_DELAY } from '../pace'
 
 export interface Clock {
   now(): number
@@ -32,7 +32,6 @@ export interface RoomSnapshot {
   code: string
   host: string
   rules: Rules
-  speed: Speed
   status: RoomStatus
   seats: Slot[]
   members: Member[]
@@ -62,7 +61,6 @@ export class Room {
   status: RoomStatus = 'lobby'
   host: string
   rules: Rules
-  speed: Speed
   seats: Slot[] = [{ kind: 'open' }, { kind: 'open' }, { kind: 'open' }, { kind: 'open' }]
   members = new Map<string, Member>()
   game: GameState | null = null
@@ -79,7 +77,6 @@ export class Room {
     code: string,
     host: { id: string; name: string } | null,
     rules: Rules,
-    speed: Speed,
     clock: Clock,
     send: (id: string, msg: ServerMessage) => void,
     seed: () => number = randomSeed,
@@ -90,13 +87,12 @@ export class Room {
     this.seed = seed
     this.host = host?.id ?? ''
     this.rules = rules
-    this.speed = speed
     if (host) this.join(host.id, host.name)
   }
 
   /** The table as it was, with everyone marked away until they come back. */
   static restore(snap: RoomSnapshot, clock: Clock, send: (id: string, msg: ServerMessage) => void, seed: () => number = randomSeed): Room {
-    const r = new Room(snap.code, null, snap.rules, snap.speed, clock, send, seed)
+    const r = new Room(snap.code, null, snap.rules, clock, send, seed)
     r.host = snap.host
     r.status = snap.status
     r.seats = structuredClone(snap.seats)
@@ -111,7 +107,6 @@ export class Room {
       code: this.code,
       host: this.host,
       rules: this.rules,
-      speed: this.speed,
       status: this.status,
       seats: this.seats,
       members: [...this.members.values()],
@@ -210,12 +205,6 @@ export class Room {
     this.sync()
   }
 
-  setSpeed(id: string, speed: Speed): void {
-    this.requireHost(id)
-    this.speed = speed
-    this.sync()
-  }
-
   /** Deal the first hand. Members still waiting get seats first; empty seats get bots. */
   start(id: string): void {
     this.requireHost(id)
@@ -272,7 +261,6 @@ export class Room {
       status: this.status,
       host: this.host,
       rules: this.rules,
-      speed: this.speed,
       seats: this.seats.map((slot): SeatInfo => {
         if (slot.kind !== 'human') return slot
         const m = this.members.get(slot.id)
@@ -381,7 +369,7 @@ export class Room {
     this.pending = null
     if (this.status !== 'playing' || !this.game || !this.anyonePresent()) return
     const s = this.game
-    const delay = DELAY[this.speed]
+    const delay = BOT_DELAY
     const later = (ms: number, fn: () => void) => {
       this.pending = this.clock.after(ms, () => {
         this.pending = null

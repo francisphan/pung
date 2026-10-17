@@ -3,7 +3,7 @@ import { aiTurn } from '../engine/ai'
 import { SEATS, type GameState } from '../engine/game'
 import { isHidden } from '../engine/view'
 import type { ServerMessage } from '../net/protocol'
-import { DELAY } from '../pace'
+import { BOT_DELAY } from '../pace'
 import { LOBBY_GRACE, Room, RoomError, STAND_IN_GRACE, type Clock } from './room'
 
 /** A clock whose time only moves when told, running timers in order. */
@@ -44,7 +44,7 @@ function table(rules = { minimumFaan: 0, rounds: 1 as const }) {
     if (!inbox.has(id)) inbox.set(id, [])
     inbox.get(id)!.push(m)
   }
-  const room = new Room('ABCD', { id: 'h', name: 'Host' }, rules, 'fast', clock, send, () => 7)
+  const room = new Room('ABCD', { id: 'h', name: 'Host' }, rules, clock, send, () => 7)
   const last = <T extends ServerMessage['type']>(id: string, type: T) => {
     const ms = inbox.get(id) ?? []
     for (let i = ms.length - 1; i >= 0; i--) if (ms[i].type === type) return ms[i] as Extract<ServerMessage, { type: T }>
@@ -170,7 +170,7 @@ describe('Room: play', () => {
     t.room.act('h', aiTurn(g, 0) as never)
     const before = t.room.game!.log.length
     expect(t.pending()).toBe(1)
-    t.tick(DELAY.fast - 1)
+    t.tick(BOT_DELAY - 1)
     expect(t.room.game!.log.length).toBe(before)
     t.settle()
     expect(t.room.game!.log.length).toBeGreaterThan(before)
