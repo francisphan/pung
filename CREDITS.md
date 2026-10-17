@@ -22,10 +22,6 @@ the artwork itself is unchanged. The sprite stays under CC BY-SA 4.0.
 
 Each file's page is at `https://commons.wikimedia.org/wiki/File:<name>`.
 
-The line-art faces (the "Line art" option) were drawn in code, originally for
-[Sparrow](https://github.com/francisphan/sparrow), which has since moved to the classic faces too;
-they share this repository's terms.
-
 ## Sounds
 
 The table sounds in `public/sounds/` are cut from recordings on

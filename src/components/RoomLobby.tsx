@@ -2,21 +2,17 @@ import { useState } from 'react'
 import type { Rules, Seat } from '../engine/game'
 import { WIND_CHAR, WINDS } from '../engine/tiles'
 import type { ConnStatus } from '../hooks/useRoom'
-import type { Settings } from '../hooks/useGame'
 import { WIND_NAME } from '../names'
 import type { RoomInfo, SeatInfo } from '../net/protocol'
 import type { Speed } from '../pace'
-import type { TileStyle } from '../tileStyle'
 import { joinLink } from '../net/link'
 import { describeRules } from '../rulesText'
-import { Choice, PaceChoice, RuleChoices } from './Choice'
+import { PaceChoice, RuleChoices } from './Choice'
 
 interface Props {
   room: RoomInfo
   conn: ConnStatus
   error: string | null
-  settings: Settings
-  onSettings: (patch: Partial<Settings>) => void
   onSit: (seat: Seat) => void
   onBot: (seat: Seat, on: boolean) => void
   onRules: (rules: Rules) => void
@@ -88,7 +84,7 @@ function SeatCard({
 }
 
 /** Waiting for friends: the code to share, the seats to choose, and the rules the host sets. */
-export default function RoomLobby({ room, conn, error, settings, onSettings, onSit, onBot, onRules, onSpeed, onStart, onLeave, onDismiss }: Props) {
+export default function RoomLobby({ room, conn, error, onSit, onBot, onRules, onSpeed, onStart, onLeave, onDismiss }: Props) {
   const isHost = room.host === room.you.id
   const host = room.seats.find((s) => s.kind === 'human' && s.id === room.host)
   const hostName = host?.kind === 'human' ? host.name : 'the host'
@@ -154,15 +150,6 @@ export default function RoomLobby({ room, conn, error, settings, onSettings, onS
       ) : (
         <p className="room-rules">{describeRules(room.rules, room.speed)}</p>
       )}
-      <Choice<TileStyle>
-        label="Tile faces"
-        value={settings.tiles}
-        options={[
-          { value: 'classic', label: 'Classic', note: 'the faces most sets use' },
-          { value: 'line', label: 'Line art', note: 'drawn in code' },
-        ]}
-        onChange={(tiles) => onSettings({ tiles })}
-      />
 
       <div className="lobby-actions">
         {isHost ? (

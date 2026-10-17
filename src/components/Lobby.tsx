@@ -3,8 +3,7 @@ import type { Rules } from '../engine/game'
 import type { Settings } from '../hooks/useGame'
 import { NAME_MAX, cleanCode } from '../net/protocol'
 import type { Speed } from '../pace'
-import type { TileStyle } from '../tileStyle'
-import { Choice, PaceChoice, RuleChoices } from './Choice'
+import { PaceChoice, RuleChoices } from './Choice'
 import Tile from './Tile'
 
 interface Props {
@@ -44,15 +43,6 @@ export default function Lobby({ settings, inProgress, online, joinCode, onStart,
         again to discard. When a discard suits you, the table offers chow, pung, kong or the win.
       </p>
       <RuleChoices rules={rules} onChange={setRules} />
-      <Choice<TileStyle>
-        label="Tile faces"
-        value={settings.tiles}
-        options={[
-          { value: 'classic', label: 'Classic', note: 'the faces most sets use' },
-          { value: 'line', label: 'Line art', note: 'drawn in code' },
-        ]}
-        onChange={(tiles) => onSettings({ tiles })}
-      />
       <PaceChoice value={settings.speed} onChange={(speed) => onSettings({ speed })} />
       <div className="lobby-actions">
         <button

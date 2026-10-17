@@ -6,7 +6,6 @@ import type { StandardId } from '../engine/tiles'
 import { EMPTY_LOG, withState, type LogHistory } from '../log'
 import { SOLO } from '../names'
 import { DELAY, type Speed } from '../pace'
-import type { TileStyle } from '../tileStyle'
 
 /** In solo play the person always sits at East. */
 const HUMAN = SOLO.me
@@ -15,7 +14,6 @@ export interface Settings {
   speed: Speed
   rules: Rules
   sound: boolean
-  tiles: TileStyle
   /** Show the table log beside the rack. */
   log: boolean
   /** The name used at online tables. */
@@ -25,7 +23,6 @@ export const DEFAULT_SETTINGS: Settings = {
   speed: 'normal',
   rules: DEFAULT_RULES,
   sound: true,
-  tiles: 'classic',
   log: true,
   name: '',
 }

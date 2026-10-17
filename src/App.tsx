@@ -12,7 +12,6 @@ import { WINDS } from './engine/tiles'
 import { cleanCode, type RoomInfo } from './net/protocol'
 import { serverUrl } from './net/serverUrl'
 import { SeatingContext } from './seat'
-import { TileStyleContext } from './tileStyle'
 
 function seatingOf(room: RoomInfo): Seating {
   const names = room.seats.map((s, i) => (s.kind === 'open' ? WIND_NAME[WINDS[i]] : s.name))
@@ -57,8 +56,6 @@ export default function App() {
           room={room}
           conn={online.conn}
           error={online.error}
-          settings={settings}
-          onSettings={setSettings}
           onSit={online.sit}
           onBot={online.setBot}
           onRules={online.setRules}
@@ -168,7 +165,7 @@ export default function App() {
   }
 
   return (
-    <TileStyleContext.Provider value={settings.tiles}>
+    <>
       <div className="app">
         <header className="masthead">
           <h1 className="wordmark">
@@ -205,6 +202,6 @@ export default function App() {
 
         <main>{main}</main>
       </div>
-    </TileStyleContext.Provider>
+    </>
   )
 }
