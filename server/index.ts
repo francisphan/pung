@@ -7,8 +7,10 @@
  */
 import { createServer } from 'node:http'
 import { WebSocketServer, type WebSocket } from 'ws'
-import { CODE_ALPHABET, CODE_LENGTH, parseClientMessage, type ClientMessage, type ServerMessage } from '../src/net/protocol'
-import { Room, RoomError, type Clock } from './room'
+import { parseClientMessage, type ClientMessage, type ServerMessage } from '../src/net/protocol'
+import { newCode } from '../src/table/codes'
+import { dispatch } from '../src/table/dispatch'
+import { Room, RoomError, realClock } from '../src/table/room'
 
 const PORT = Number(process.env.PORT ?? 8787)
 const ORIGINS = (process.env.PUNG_ORIGINS ?? '')
@@ -21,14 +23,6 @@ const ROOM_IDLE = 15 * 60_000
 const SWEEP_EVERY = 15_000
 const PING_EVERY = 30_000
 
-const clock: Clock = {
-  now: () => Date.now(),
-  after: (ms, fn) => {
-    const t = setTimeout(fn, ms)
-    return () => clearTimeout(t)
-  },
-}
-
 const rooms = new Map<string, Room>()
 /** The live socket of each member, per room. */
 const sockets = new Map<string, Map<string, WebSocket>>()
@@ -37,10 +31,9 @@ function log(...parts: unknown[]) {
   console.log(new Date().toISOString(), ...parts)
 }
 
-function newCode(): string {
+function freshCode(): string {
   for (;;) {
-    let code = ''
-    for (let i = 0; i < CODE_LENGTH; i++) code += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)]
+    const code = newCode()
     if (!rooms.has(code)) return code
   }
 }
@@ -137,9 +130,9 @@ wss.on('connection', (ws, req) => {
         case 'create': {
           detach(true)
           if (rooms.size >= MAX_ROOMS) throw new RoomError('The server has no room for another table right now.')
-          const code = newCode()
+          const code = freshCode()
           attach(code, msg.id)
-          const room = new Room(code, { id: msg.id, name: msg.name }, msg.rules, msg.speed, clock, deliver(code))
+          const room = new Room(code, { id: msg.id, name: msg.name }, msg.rules, msg.speed, realClock, deliver(code))
           rooms.set(code, room)
           log(`room ${code} created by ${msg.name}`)
           return
@@ -165,23 +158,7 @@ wss.on('connection', (ws, req) => {
       if (!session) throw new RoomError('You are not at a table.')
       const room = rooms.get(session.code)
       if (!room) throw new RoomError('That table is gone.')
-      const id = session.id
-      switch (msg.type) {
-        case 'sit':
-          return room.sit(id, msg.seat)
-        case 'bot':
-          return room.setBot(id, msg.seat, msg.on)
-        case 'rules':
-          return room.setRules(id, msg.rules)
-        case 'speed':
-          return room.setSpeed(id, msg.speed)
-        case 'start':
-          return room.start(id)
-        case 'action':
-          return room.act(id, msg.action)
-        case 'again':
-          return room.again(id)
-      }
+      dispatch(room, session.id, msg)
     } catch (e) {
       if (e instanceof RoomError) {
         const fatal = msg.type === 'join' || msg.type === 'create'

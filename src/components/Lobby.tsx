@@ -68,7 +68,8 @@ export default function Lobby({ settings, inProgress, online, joinCode, onStart,
         </h3>
         <p className="friends-copy">
           Host a table and share its four-letter code, or join a friend's. Everyone picks a seat; any seat left empty
-          gets one of the bots when the host deals.
+          gets one of the bots when the host deals. The host's browser runs the table, so the host keeps their page
+          open; everyone else only needs the code.
         </p>
         {online.available ? (
           <>
@@ -125,8 +126,7 @@ export default function Lobby({ settings, inProgress, online, joinCode, onStart,
           </>
         ) : (
           <p className="friends-off">
-            This copy of Pung is not connected to a table server, so there is nobody to host or join. The README
-            explains how to run one.
+            This browser cannot connect to other players (it has no WebRTC), so there is nobody to host or join.
           </p>
         )}
       </section>

@@ -1,8 +1,8 @@
 /**
- * Where the table server lives. Set VITE_PUNG_SERVER at build time; in
- * development it defaults to a server on this machine. `?server=wss://…`
- * on the page URL overrides it for this browser (and `?server=` clears
- * the override), which helps when trying a server before deploying it.
+ * An optional table server. Without one, the host's own browser runs the
+ * table. Set VITE_PUNG_SERVER at build time to use a server instead, or
+ * open the page once with `?server=wss://…` to use one in this browser
+ * (`?server=` clears it again).
  */
 const KEY = 'pung.server.v1'
 
@@ -19,6 +19,5 @@ export function serverUrl(): string | null {
     /* no storage: fall through */
   }
   const env = import.meta.env.VITE_PUNG_SERVER as string | undefined
-  if (env) return env
-  return import.meta.env.DEV ? 'ws://localhost:8787' : null
+  return env || null
 }

@@ -5,7 +5,7 @@ import type { ConnStatus } from '../hooks/useRoom'
 import { WIND_NAME } from '../names'
 import type { RoomInfo, SeatInfo } from '../net/protocol'
 import type { Speed } from '../pace'
-import { joinLink } from '../net/link'
+import { joinLink } from '../net/joinLink'
 import { describeRules } from '../rulesText'
 import { PaceChoice, RuleChoices } from './Choice'
 
@@ -13,6 +13,8 @@ interface Props {
   room: RoomInfo
   conn: ConnStatus
   error: string | null
+  /** This browser runs the table, rather than a server. */
+  hosting: boolean
   onSit: (seat: Seat) => void
   onBot: (seat: Seat, on: boolean) => void
   onRules: (rules: Rules) => void
@@ -84,7 +86,7 @@ function SeatCard({
 }
 
 /** Waiting for friends: the code to share, the seats to choose, and the rules the host sets. */
-export default function RoomLobby({ room, conn, error, onSit, onBot, onRules, onSpeed, onStart, onLeave, onDismiss }: Props) {
+export default function RoomLobby({ room, conn, error, hosting, onSit, onBot, onRules, onSpeed, onStart, onLeave, onDismiss }: Props) {
   const isHost = room.host === room.you.id
   const host = room.seats.find((s) => s.kind === 'human' && s.id === room.host)
   const hostName = host?.kind === 'human' ? host.name : 'the host'
@@ -166,6 +168,12 @@ export default function RoomLobby({ room, conn, error, onSit, onBot, onRules, on
         </button>
       </div>
       {isHost && humans === 1 && <p className="lobby-foot">Nobody else is here yet. Deal now and the bots fill the other seats.</p>}
+      {hosting && (
+        <p className="lobby-foot">
+          Your browser is running this table. Keep this page open while you play; closing it closes the table for
+          everyone.
+        </p>
+      )}
     </div>
   )
 }

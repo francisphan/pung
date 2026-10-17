@@ -2,13 +2,25 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 import type { Decision, GameState, Rules, Seat } from '../engine/game'
 import type { StandardId } from '../engine/tiles'
 import { EMPTY_LOG, withNote, withState, type LogHistory } from '../log'
+import { webrtcSupported } from '../net/broker'
 import { Connection } from '../net/client'
+import { Host } from '../net/host'
+import type { Handlers, Link } from '../net/link'
+import { PeerLink } from '../net/peerLink'
 import type { ClientMessage, RoomInfo, SeatInfo, ServerMessage } from '../net/protocol'
 import type { Speed } from '../pace'
+import type { RoomSnapshot } from '../table/room'
 import { clear, load, save } from './useGame'
 
 const ROOM_KEY = 'pung.room.v1'
+const TABLE_KEY = 'pung.table.v1'
 const PLAYER_KEY = 'pung.player.v1'
+
+type Role = 'host' | 'guest'
+interface Stored {
+  code: string
+  role: Role
+}
 
 /** A random id this browser keeps, so a reload or a dropped connection finds its seat again. */
 function playerId(): string {
@@ -30,12 +42,14 @@ export interface Online {
   view: GameState | null
   log: LogHistory
   error: string | null
-  /** Trying to get to a table, before the server has answered. */
+  /** Trying to get to a table, before it has answered. */
   busy: boolean
+  /** This browser is running the table. */
+  hosting: boolean
 }
 
 type Event =
-  | { type: 'busy' }
+  | { type: 'busy'; hosting: boolean }
   | { type: 'conn'; conn: ConnStatus }
   | { type: 'left'; error?: string }
   | { type: 'dismiss' }
@@ -71,7 +85,7 @@ function notes(prev: RoomInfo | null, next: RoomInfo): string[] {
 function step(o: Online, e: Event): Online {
   switch (e.type) {
     case 'busy':
-      return { ...o, busy: true, error: null }
+      return { ...o, busy: true, error: null, hosting: e.hosting }
     case 'conn':
       return { ...o, conn: e.conn }
     case 'room': {
@@ -82,28 +96,39 @@ function step(o: Online, e: Event): Online {
     case 'state':
       return { ...o, view: e.state, log: withState(o.log, e.state) }
     case 'error':
-      if (e.fatal) return { conn: o.conn, room: null, view: null, log: EMPTY_LOG, error: e.message, busy: false }
+      if (e.fatal) return { conn: o.conn, room: null, view: null, log: EMPTY_LOG, error: e.message, busy: false, hosting: false }
       return { ...o, error: e.message }
     case 'left':
-      return { conn: 'idle', room: null, view: null, log: EMPTY_LOG, error: e.error ?? null, busy: false }
+      return { conn: 'idle', room: null, view: null, log: EMPTY_LOG, error: e.error ?? null, busy: false, hosting: false }
     case 'dismiss':
       return { ...o, error: null }
   }
 }
 
 /**
- * A seat at an online table. Connects when asked to host or join, remembers
- * the table across reloads, and mirrors the solo game's API so the table
- * components do not care which they are playing on.
+ * A seat at an online table. Hosting runs the table in this browser and
+ * lets friends in over WebRTC; joining links to the host's browser. With a
+ * table server configured, both go through the server instead. Either way
+ * the API mirrors the solo game's, so the table components do not care.
  */
-export function useRoom(url: string | null, name: string) {
+export function useRoom(serverUrl: string | null, name: string) {
+  const available = !!serverUrl || webrtcSupported()
   const [o, dispatch] = useReducer(step, null, (): Online => {
-    const stored = url ? load<{ code: string }>(ROOM_KEY) : null
-    return { conn: stored ? 'connecting' : 'idle', room: null, view: null, log: EMPTY_LOG, error: null, busy: !!stored }
+    const stored = available ? load<Stored>(ROOM_KEY) : null
+    return {
+      conn: stored ? 'connecting' : 'idle',
+      room: null,
+      view: null,
+      log: EMPTY_LOG,
+      error: null,
+      busy: !!stored,
+      hosting: stored?.role === 'host' && !serverUrl,
+    }
   })
-  const conn = useRef<Connection | null>(null)
-  /** What to send as soon as the socket opens: create a table, or (re)join one. */
+  const link = useRef<Link | null>(null)
+  /** What to send as soon as the link opens: create a table, or (re)join one. */
   const intent = useRef<ClientMessage | null>(null)
+  const role = useRef<Role>('guest')
   const latest = useRef(o)
   const nameRef = useRef(name)
   useEffect(() => {
@@ -113,25 +138,24 @@ export function useRoom(url: string | null, name: string) {
   const id = useMemo(() => playerId(), [])
 
   const drop = useCallback((error?: string) => {
-    conn.current?.close()
-    conn.current = null
+    link.current?.close()
+    link.current = null
     intent.current = null
     clear(ROOM_KEY)
     dispatch({ type: 'left', error })
   }, [])
 
-  const connect = useCallback(() => {
-    if (conn.current || !url) return
-    conn.current = new Connection(url, {
+  const handlers = useMemo<Handlers>(
+    () => ({
       onOpen() {
         dispatch({ type: 'conn', conn: 'open' })
-        if (intent.current) conn.current?.send(intent.current)
+        if (intent.current) link.current?.send(intent.current)
       },
       onMessage(msg) {
         if (msg.type === 'room') {
           // From now on a reconnect rejoins this table rather than creating another.
           intent.current = { type: 'join', id, name: nameRef.current, code: msg.room.code }
-          save(ROOM_KEY, { code: msg.room.code })
+          save(ROOM_KEY, { code: msg.room.code, role: role.current } satisfies Stored)
         }
         dispatch(msg)
         if (msg.type === 'error' && msg.fatal) drop(msg.message)
@@ -140,35 +164,63 @@ export function useRoom(url: string | null, name: string) {
         if (why === 'elsewhere') drop('You opened this table in another window, so this one has left it.')
         else dispatch({ type: 'conn', conn: 'lost' })
       },
-    })
-  }, [url, id, drop])
+    }),
+    [id, drop],
+  )
+
+  /** Open the right kind of link for the role. */
+  const open = useCallback(
+    (what: { role: 'guest'; code: string } | { role: 'host'; rules: Rules; speed: Speed; snapshot?: RoomSnapshot | null }) => {
+      link.current?.close()
+      role.current = what.role
+      if (serverUrl) {
+        link.current = new Connection(serverUrl, handlers)
+        return
+      }
+      if (what.role === 'guest') {
+        link.current = new PeerLink(what.code, handlers)
+        return
+      }
+      const host = new Host({
+        me: { id, name: nameRef.current },
+        rules: what.rules,
+        speed: what.speed,
+        snapshot: what.snapshot ?? null,
+        handlers,
+        onSnapshot: (snap) => {
+          if (snap) save(TABLE_KEY, snap)
+          else clear(TABLE_KEY)
+        },
+      })
+      link.current = host
+      host.start().catch(() => {
+        if (link.current === host) drop('Could not open a table: the matchmaking service could not be reached.')
+      })
+    },
+    [serverUrl, handlers, id, drop],
+  )
 
   // Back at a table after a reload.
   useEffect(() => {
-    const stored = url ? load<{ code: string }>(ROOM_KEY) : null
+    const stored = available ? load<Stored>(ROOM_KEY) : null
     if (stored) {
-      intent.current = { type: 'join', id, name: nameRef.current, code: stored.code }
-      connect()
+      if (serverUrl || stored.role === 'guest') {
+        intent.current = { type: 'join', id, name: nameRef.current, code: stored.code }
+        open({ role: 'guest', code: stored.code })
+      } else {
+        const snapshot = load<RoomSnapshot>(TABLE_KEY)
+        if (snapshot && snapshot.code === stored.code) open({ role: 'host', rules: snapshot.rules, speed: snapshot.speed, snapshot })
+        else drop()
+      }
     }
     return () => {
-      conn.current?.close()
-      conn.current = null
+      link.current?.close()
+      link.current = null
     }
-  }, [url, id, connect])
-
-  const begin = useCallback(
-    (msg: ClientMessage) => {
-      intent.current = msg
-      dispatch({ type: 'busy' })
-      dispatch({ type: 'conn', conn: conn.current?.isOpen ? 'open' : 'connecting' })
-      connect()
-      conn.current?.send(msg)
-    },
-    [connect],
-  )
+  }, [available, serverUrl, id, open, drop])
 
   const send = useCallback((msg: ClientMessage) => {
-    if (!conn.current?.send(msg)) dispatch({ type: 'error', message: 'Not connected to the table right now.' })
+    if (!link.current?.send(msg)) dispatch({ type: 'error', message: 'Not connected to the table right now.' })
   }, [])
 
   const api = useMemo(() => {
@@ -176,13 +228,23 @@ export function useRoom(url: string | null, name: string) {
     const action = (a: Extract<ClientMessage, { type: 'action' }>['action']) => send({ type: 'action', action: a })
     return {
       host(rules: Rules, speed: Speed) {
-        begin({ type: 'create', id, name: nameRef.current, rules, speed })
+        const viaServer = !!serverUrl
+        intent.current = viaServer ? { type: 'create', id, name: nameRef.current, rules, speed } : null
+        dispatch({ type: 'busy', hosting: !viaServer })
+        dispatch({ type: 'conn', conn: 'connecting' })
+        open({ role: 'host', rules, speed })
+        if (intent.current) link.current?.send(intent.current)
       },
       join(code: string) {
-        begin({ type: 'join', id, name: nameRef.current, code })
+        intent.current = { type: 'join', id, name: nameRef.current, code }
+        dispatch({ type: 'busy', hosting: false })
+        dispatch({ type: 'conn', conn: 'connecting' })
+        open({ role: 'guest', code })
+        link.current?.send(intent.current)
       },
       leave() {
-        conn.current?.send({ type: 'leave' })
+        link.current?.send({ type: 'leave' })
+        clear(TABLE_KEY)
         drop()
       },
       dismiss() {
@@ -222,7 +284,7 @@ export function useRoom(url: string | null, name: string) {
         action({ type: 'nextHand' })
       },
     }
-  }, [begin, send, drop, id])
+  }, [open, send, drop, id, serverUrl])
 
-  return { ...o, available: !!url, ...api }
+  return { ...o, available, viaServer: !!serverUrl, ...api }
 }

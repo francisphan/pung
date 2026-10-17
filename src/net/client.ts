@@ -1,18 +1,12 @@
+import type { Handlers, Link } from './link'
 import type { ClientMessage, ServerMessage } from './protocol'
-
-export interface Handlers {
-  onOpen(): void
-  onMessage(msg: ServerMessage): void
-  /** The socket closed. `elsewhere` means the same player opened the table in another window; do not reconnect. */
-  onClose(why: 'lost' | 'elsewhere'): void
-}
 
 /**
  * A WebSocket to the table server that comes back by itself: after a drop
  * it retries with growing pauses, and at once when the page returns to the
  * foreground, which is what happens when an iPad wakes up.
  */
-export class Connection {
+export class Connection implements Link {
   private ws: WebSocket | null = null
   private attempts = 0
   private timer: ReturnType<typeof setTimeout> | null = null

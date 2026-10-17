@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { aiTurn } from '../src/engine/ai'
-import { SEATS, type GameState } from '../src/engine/game'
-import { isHidden } from '../src/engine/view'
-import type { ServerMessage } from '../src/net/protocol'
-import { DELAY } from '../src/pace'
+import { aiTurn } from '../engine/ai'
+import { SEATS, type GameState } from '../engine/game'
+import { isHidden } from '../engine/view'
+import type { ServerMessage } from '../net/protocol'
+import { DELAY } from '../pace'
 import { LOBBY_GRACE, Room, RoomError, STAND_IN_GRACE, type Clock } from './room'
 
 /** A clock whose time only moves when told, running timers in order. */
@@ -272,5 +272,39 @@ describe('Room: play', () => {
       for (const o of SEATS) if (o !== 1) expect(m.state.players[o].concealed.every(isHidden)).toBe(true)
       expect(m.state.wall.every(isHidden)).toBe(true)
     }
+  })
+})
+
+describe('Room: snapshot and restore', () => {
+  it('comes back with the same seats and game, everyone away until they return', () => {
+    const t = table()
+    t.room.join('g1', 'Ann')
+    t.room.start('h')
+    t.room.act('h', aiTurn(t.room.game!, 0) as never)
+    const snap = t.room.snapshot()
+    expect(JSON.parse(JSON.stringify(snap))).toEqual(snap)
+    const { clock, pending } = fakeClock()
+    const inbox: ServerMessage[] = []
+    const r = Room.restore(snap, clock, (_id, m) => inbox.push(m), () => 7)
+    expect(r.code).toBe('ABCD')
+    expect(r.host).toBe('h')
+    expect(r.status).toBe('playing')
+    expect(r.game).toEqual(t.room.game)
+    expect([...r.members.values()].every((m) => !m.connected)).toBe(true)
+    expect(pending()).toBe(0)
+    r.join('h', 'Host')
+    expect(r.info('h').you.seat).toBe(0)
+    expect(r.info('h').seats[1]).toMatchObject({ kind: 'human', name: 'Ann', connected: false })
+    // The host is back, so play resumes: a bot or a stand-in is due.
+    expect(pending()).toBe(1)
+  })
+
+  it('reports every change so a host can save it', () => {
+    const t = table()
+    let saved = 0
+    t.room.onChange = () => saved++
+    t.room.join('g1', 'Ann')
+    t.room.sit('g1', 2)
+    expect(saved).toBe(2)
   })
 })

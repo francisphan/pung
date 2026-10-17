@@ -29,7 +29,8 @@ export default function App() {
   const joinCode = useMemo(() => cleanCode(new URLSearchParams(window.location.search).get('join')), [])
   const solo = useGame(settings.speed)
   const online = useRoom(url, settings.name.trim() || 'Guest')
-  const [lobby, setLobby] = useState(false)
+  // A shared link opens the lobby with its code filled in, even over a solo game in progress.
+  const [lobby, setLobby] = useState(() => joinCode !== null)
 
   const room = online.room
   const inRoom = room !== null || online.busy
@@ -38,6 +39,12 @@ export default function App() {
   const showLobby = !inRoom && (lobby || !solo.state)
   useSounds(state, settings.sound, seating.me)
   const toggleLog = () => setSettings({ log: !settings.log })
+  // A host's browser is the table: leaving ends it for everyone else there.
+  const leave = () => {
+    const others = room?.seats.some((s) => s.kind === 'human' && s.id !== room.you.id) ?? false
+    if (online.hosting && others && !window.confirm('Leaving closes the table for everyone. Leave?')) return
+    online.leave()
+  }
 
   let main
   if (inRoom) {
@@ -45,7 +52,7 @@ export default function App() {
       main = (
         <div className="waiting">
           <p>{online.conn === 'lost' ? 'Cannot reach the table server. Trying again…' : 'Finding your table…'}</p>
-          <button type="button" className="act" onClick={online.leave}>
+          <button type="button" className="act" onClick={leave}>
             Cancel
           </button>
         </div>
@@ -56,12 +63,13 @@ export default function App() {
           room={room}
           conn={online.conn}
           error={online.error}
+          hosting={online.hosting}
           onSit={online.sit}
           onBot={online.setBot}
           onRules={online.setRules}
           onSpeed={online.setSpeed}
           onStart={online.start}
-          onLeave={online.leave}
+          onLeave={leave}
           onDismiss={online.dismiss}
         />
       )
@@ -111,7 +119,7 @@ export default function App() {
               onNewGame={online.again}
               canRestart={room.host === room.you.id}
               waitingFor={nameIn(room, room.host)}
-              onLeave={online.leave}
+              onLeave={leave}
             />
           )}
         </SeatingContext.Provider>
@@ -185,7 +193,7 @@ export default function App() {
               {settings.sound ? 'Sound off' : 'Sound on'}
             </button>
             {inRoom && room?.status !== 'lobby' && (
-              <button type="button" className="link-btn" onClick={online.leave}>
+              <button type="button" className="link-btn" onClick={leave}>
                 Leave table
               </button>
             )}

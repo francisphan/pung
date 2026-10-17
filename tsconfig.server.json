@@ -21,6 +21,6 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["server", "src/engine", "src/net/protocol.ts", "src/pace.ts", "src/names.ts"],
+  "include": ["server", "src/engine", "src/table", "src/net/protocol.ts", "src/pace.ts", "src/names.ts"],
   "exclude": ["**/*.test.ts"]
 }

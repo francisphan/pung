@@ -1,20 +1,42 @@
 /**
  * One table. Holds the members, who sits where, and the game itself, and
  * drives the bots. Pure apart from the clock and the outbox it is given, so
- * it can be tested with fake timers and hosted by any transport.
+ * it can be tested with fake timers and run by any host: the table server
+ * in Node, or the host player's own browser.
  */
-import { aiClaim, aiTurn } from '../src/engine/ai'
-import { IllegalAction, SEATS, newGame, reduce, type Action, type Decision, type GameState, type Rules, type Seat } from '../src/engine/game'
-import { randomSeed } from '../src/engine/rng'
-import { viewFor } from '../src/engine/view'
-import { BOT_NAMES } from '../src/names'
-import type { RoomInfo, RoomStatus, SeatInfo, ServerMessage, TableAction } from '../src/net/protocol'
-import { DELAY, type Speed } from '../src/pace'
+import { aiClaim, aiTurn } from '../engine/ai'
+import { IllegalAction, SEATS, newGame, reduce, type Action, type Decision, type GameState, type Rules, type Seat } from '../engine/game'
+import { randomSeed } from '../engine/rng'
+import { viewFor } from '../engine/view'
+import { BOT_NAMES } from '../names'
+import type { RoomInfo, RoomStatus, SeatInfo, ServerMessage, TableAction } from '../net/protocol'
+import { DELAY, type Speed } from '../pace'
 
 export interface Clock {
   now(): number
   /** Run fn after ms. Returns a function that cancels it. */
   after(ms: number, fn: () => void): () => void
+}
+
+/** Wall-clock time and real timers, for Node and the browser alike. */
+export const realClock: Clock = {
+  now: () => Date.now(),
+  after: (ms, fn) => {
+    const t = setTimeout(fn, ms)
+    return () => clearTimeout(t)
+  },
+}
+
+/** Everything a table needs to be put back as it was. */
+export interface RoomSnapshot {
+  code: string
+  host: string
+  rules: Rules
+  speed: Speed
+  status: RoomStatus
+  seats: Slot[]
+  members: Member[]
+  game: GameState | null
 }
 
 /** Something a member asked for that the table refuses. The message is shown to them. */
@@ -45,14 +67,17 @@ export class Room {
   members = new Map<string, Member>()
   game: GameState | null = null
   readonly code: string
+  /** Called after every change has been sent out; the browser host saves a snapshot here. */
+  onChange: (() => void) | null = null
   private pending: (() => void) | null = null
   private clock: Clock
   private send: (id: string, msg: ServerMessage) => void
   private seed: () => number
 
+  /** A new table. With a host, they take the first seat at once; with none, see `restore`. */
   constructor(
     code: string,
-    host: { id: string; name: string },
+    host: { id: string; name: string } | null,
     rules: Rules,
     speed: Speed,
     clock: Clock,
@@ -63,10 +88,35 @@ export class Room {
     this.clock = clock
     this.send = send
     this.seed = seed
-    this.host = host.id
+    this.host = host?.id ?? ''
     this.rules = rules
     this.speed = speed
-    this.join(host.id, host.name)
+    if (host) this.join(host.id, host.name)
+  }
+
+  /** The table as it was, with everyone marked away until they come back. */
+  static restore(snap: RoomSnapshot, clock: Clock, send: (id: string, msg: ServerMessage) => void, seed: () => number = randomSeed): Room {
+    const r = new Room(snap.code, null, snap.rules, snap.speed, clock, send, seed)
+    r.host = snap.host
+    r.status = snap.status
+    r.seats = structuredClone(snap.seats)
+    r.game = structuredClone(snap.game)
+    const now = clock.now()
+    for (const m of snap.members) r.members.set(m.id, { ...m, connected: false, lastSeen: now })
+    return r
+  }
+
+  snapshot(): RoomSnapshot {
+    return structuredClone({
+      code: this.code,
+      host: this.host,
+      rules: this.rules,
+      speed: this.speed,
+      status: this.status,
+      seats: this.seats,
+      members: [...this.members.values()],
+      game: this.game,
+    })
   }
 
   // Membership
@@ -242,6 +292,7 @@ export class Room {
       if (this.game && m.seat !== null) this.send(m.id, { type: 'state', state: viewFor(this.game, m.seat) })
     }
     this.schedule()
+    this.onChange?.()
   }
 
   /** Stop any pending bot move; call when the room is dropped. */
