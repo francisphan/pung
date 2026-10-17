@@ -1,86 +1,210 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import GameOver from './components/GameOver'
 import Lobby from './components/Lobby'
 import Result from './components/Result'
+import RoomLobby from './components/RoomLobby'
 import Table from './components/Table'
-import { TileStyleContext } from './tileStyle'
-import { useGame } from './hooks/useGame'
+import { useGame, useSettings } from './hooks/useGame'
+import { useRoom } from './hooks/useRoom'
 import { useSounds } from './hooks/useSounds'
+import { SOLO, WIND_NAME, type Seating } from './names'
+import { WINDS } from './engine/tiles'
+import { cleanCode, type RoomInfo } from './net/protocol'
+import { serverUrl } from './net/serverUrl'
+import { SeatingContext } from './seat'
+import { TileStyleContext } from './tileStyle'
+
+function seatingOf(room: RoomInfo): Seating {
+  const names = room.seats.map((s, i) => (s.kind === 'open' ? WIND_NAME[WINDS[i]] : s.name))
+  return { me: room.you.seat ?? 0, names }
+}
+
+function nameIn(room: RoomInfo, id: string | null): string | null {
+  const s = room.seats.find((x) => x.kind === 'human' && x.id === id)
+  return s?.kind === 'human' ? s.name : null
+}
 
 export default function App() {
-  const game = useGame()
-  const { state } = game
+  const { settings, setSettings } = useSettings()
+  const url = useMemo(() => serverUrl(), [])
+  const joinCode = useMemo(() => cleanCode(new URLSearchParams(window.location.search).get('join')), [])
+  const solo = useGame(settings.speed)
+  const online = useRoom(url, settings.name.trim() || 'Guest')
   const [lobby, setLobby] = useState(false)
-  const showLobby = lobby || !state
-  useSounds(state, game.settings.sound)
+
+  const room = online.room
+  const inRoom = room !== null || online.busy
+  const seating = room ? seatingOf(room) : SOLO
+  const state = inRoom ? (room && room.status !== 'lobby' ? online.view : null) : solo.state
+  const showLobby = !inRoom && (lobby || !solo.state)
+  useSounds(state, settings.sound, seating.me)
+  const toggleLog = () => setSettings({ log: !settings.log })
+
+  let main
+  if (inRoom) {
+    if (!room) {
+      main = (
+        <div className="waiting">
+          <p>{online.conn === 'lost' ? 'Cannot reach the table server. Trying again…' : 'Finding your table…'}</p>
+          <button type="button" className="act" onClick={online.leave}>
+            Cancel
+          </button>
+        </div>
+      )
+    } else if (room.status === 'lobby' || room.you.seat === null) {
+      main = (
+        <RoomLobby
+          room={room}
+          conn={online.conn}
+          error={online.error}
+          settings={settings}
+          onSettings={setSettings}
+          onSit={online.sit}
+          onBot={online.setBot}
+          onRules={online.setRules}
+          onSpeed={online.setSpeed}
+          onStart={online.start}
+          onLeave={online.leave}
+          onDismiss={online.dismiss}
+        />
+      )
+    } else if (!state) {
+      main = (
+        <div className="waiting">
+          <p>Waiting for the table…</p>
+        </div>
+      )
+    } else {
+      main = (
+        <SeatingContext.Provider value={seating}>
+          {online.conn === 'lost' && (
+            <p className="banner" role="status">
+              Connection lost. Trying to get back to the table…
+            </p>
+          )}
+          {online.error && (
+            <p className="banner" role="alert">
+              {online.error}{' '}
+              <button type="button" className="link-btn" onClick={online.dismiss}>
+                Dismiss
+              </button>
+            </p>
+          )}
+          <Table
+            state={state}
+            log={online.log}
+            logOpen={settings.log}
+            onToggleLog={toggleLog}
+            onDiscard={online.discard}
+            onSelfWin={online.selfWin}
+            onKong={online.kong}
+            onDecide={online.decide}
+          />
+          {state.phase === 'handEnd' && (
+            <Result
+              state={state}
+              onNext={online.nextHand}
+              canAdvance={room.controller === room.you.id}
+              waitingFor={nameIn(room, room.controller)}
+            />
+          )}
+          {state.phase === 'gameEnd' && (
+            <GameOver
+              state={state}
+              onNewGame={online.again}
+              canRestart={room.host === room.you.id}
+              waitingFor={nameIn(room, room.host)}
+              onLeave={online.leave}
+            />
+          )}
+        </SeatingContext.Provider>
+      )
+    }
+  } else if (showLobby) {
+    main = (
+      <Lobby
+        settings={settings}
+        inProgress={!!solo.state && solo.state.phase !== 'gameEnd'}
+        online={{ available: online.available, busy: online.busy, error: online.error }}
+        joinCode={joinCode}
+        onStart={(rules) => {
+          solo.start(rules)
+          setLobby(false)
+        }}
+        onHost={(rules, speed) => {
+          setSettings({ rules, speed })
+          online.host(rules, speed)
+        }}
+        onJoin={online.join}
+        onSettings={setSettings}
+        onBack={() => setLobby(false)}
+      />
+    )
+  } else if (solo.state) {
+    main = (
+      <SeatingContext.Provider value={SOLO}>
+        <Table
+          state={solo.state}
+          log={solo.log}
+          logOpen={settings.log}
+          onToggleLog={toggleLog}
+          onDiscard={solo.discard}
+          onSelfWin={solo.selfWin}
+          onKong={solo.kong}
+          onDecide={solo.decide}
+        />
+        {solo.state.phase === 'handEnd' && <Result state={solo.state} onNext={solo.nextHand} />}
+        {solo.state.phase === 'gameEnd' && (
+          <GameOver
+            state={solo.state}
+            onNewGame={() => {
+              solo.quit()
+              setLobby(true)
+            }}
+          />
+        )}
+      </SeatingContext.Provider>
+    )
+  }
 
   return (
-    <TileStyleContext.Provider value={game.settings.tiles}>
-    <div className="app">
-      <header className="masthead">
-        <h1 className="wordmark">
-          Pung
-          <span className="wordmark-cjk" lang="zh-Hant" aria-hidden="true">
-            碰
-          </span>
-        </h1>
-        <nav className="masthead-nav">
-          <button
-            type="button"
-            className="link-btn"
-            aria-pressed={game.settings.sound}
-            onClick={() => game.setSettings({ sound: !game.settings.sound })}
-          >
-            {game.settings.sound ? 'Sound off' : 'Sound on'}
-          </button>
-          {state && !showLobby && (
-            <button type="button" className="link-btn" onClick={() => setLobby(true)}>
-              New game
+    <TileStyleContext.Provider value={settings.tiles}>
+      <div className="app">
+        <header className="masthead">
+          <h1 className="wordmark">
+            Pung
+            <span className="wordmark-cjk" lang="zh-Hant" aria-hidden="true">
+              碰
+            </span>
+          </h1>
+          <nav className="masthead-nav">
+            {room && <span className="masthead-code">Table {room.code}</span>}
+            <button
+              type="button"
+              className="link-btn"
+              aria-pressed={settings.sound}
+              onClick={() => setSettings({ sound: !settings.sound })}
+            >
+              {settings.sound ? 'Sound off' : 'Sound on'}
             </button>
-          )}
-          <a className="masthead-link" href="https://github.com/francisphan/pung">
-            Source
-          </a>
-        </nav>
-      </header>
+            {inRoom && room?.status !== 'lobby' && (
+              <button type="button" className="link-btn" onClick={online.leave}>
+                Leave table
+              </button>
+            )}
+            {!inRoom && solo.state && !showLobby && (
+              <button type="button" className="link-btn" onClick={() => setLobby(true)}>
+                New game
+              </button>
+            )}
+            <a className="masthead-link" href="https://github.com/francisphan/pung">
+              Source
+            </a>
+          </nav>
+        </header>
 
-      <main>
-        {showLobby ? (
-          <Lobby
-            settings={game.settings}
-            inProgress={!!state && state.phase !== 'gameEnd'}
-            onStart={(rules) => {
-              game.start(rules)
-              setLobby(false)
-            }}
-            onSettings={game.setSettings}
-            onBack={() => setLobby(false)}
-          />
-        ) : (
-          state && (
-            <>
-              <Table
-                state={state}
-                onDiscard={game.discard}
-                onSelfWin={game.selfWin}
-                onKong={game.kong}
-                onDecide={game.decide}
-              />
-              {state.phase === 'handEnd' && <Result state={state} onNext={game.nextHand} />}
-              {state.phase === 'gameEnd' && (
-                <GameOver
-                  state={state}
-                  onNewGame={() => {
-                    game.quit()
-                    setLobby(true)
-                  }}
-                />
-              )}
-            </>
-          )
-        )}
-      </main>
-    </div>
+        <main>{main}</main>
+      </div>
     </TileStyleContext.Provider>
   )
 }

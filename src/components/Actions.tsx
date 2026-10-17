@@ -1,8 +1,8 @@
 import { canSelfWin, kongOptions, type Claim, type Decision, type GameState } from '../engine/game'
 import { tileName, type StandardId } from '../engine/tiles'
-import { HUMAN } from '../hooks/useGame'
-import { NAMES } from '../names'
+import { nameOf } from '../names'
 import { narrate } from '../narrate'
+import { useSeating } from '../seat'
 import Tile from './Tile'
 
 interface Props {
@@ -17,17 +17,20 @@ interface Props {
 
 /** Everything the person can do right now, with a line saying what just happened. */
 export default function Actions({ state, selected, selectedTile, onDiscard, onSelfWin, onKong, onDecide }: Props) {
-  const myTurn = state.phase === 'discard' && state.current === HUMAN
-  const claim = state.phase === 'claim' && state.claim && state.claim.options[HUMAN] && !state.claim.decisions[HUMAN] ? state.claim : null
+  const seating = useSeating()
+  const { me } = seating
+  const myTurn = state.phase === 'discard' && state.current === me
+  const claim = state.phase === 'claim' && state.claim && state.claim.options[me] && !state.claim.decisions[me] ? state.claim : null
   const last = state.log[state.log.length - 1]
-  const win = myTurn ? canSelfWin(state, HUMAN) : null
-  const kongs = myTurn ? kongOptions(state, HUMAN) : []
+  const win = myTurn ? canSelfWin(state, me) : null
+  const kongs = myTurn ? kongOptions(state, me) : []
 
   let status: string
-  if (claim) status = `${NAMES[claim.from]} ${claim.source === 'kong' ? 'is adding' : 'discarded'} ${tileName(claim.tile)}.`
+  if (claim) status = `${nameOf(seating, claim.from)} ${claim.source === 'kong' ? 'is adding' : 'discarded'} ${tileName(claim.tile)}.`
   else if (myTurn) status = selected ? `Tap ${tileName(selectedTile!)} again to discard it.` : state.drawn ? 'Your turn. Pick a tile to discard.' : 'Pick a tile to discard.'
-  else if (state.phase === 'discard') status = `${narrate(last)} ${NAMES[state.current]} is thinking.`
-  else status = narrate(last)
+  else if (state.phase === 'discard') status = `${narrate(last, seating)} ${nameOf(seating, state.current)} is thinking.`
+  else if (state.phase === 'claim') status = `${narrate(last, seating)} Waiting for the others.`
+  else status = narrate(last, seating)
 
   const claimLabel = (c: Claim) => {
     switch (c.kind) {
@@ -86,7 +89,7 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
       </p>
       <div className="act-row">
         {claim &&
-          claim.options[HUMAN]!.map((c, i) => (
+          claim.options[me]!.map((c, i) => (
             <button key={i} type="button" className={`act${c.kind === 'win' ? ' act-win' : ''}`} onClick={() => onDecide(c)}>
               {claimLabel(c)}
             </button>

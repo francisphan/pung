@@ -1,6 +1,7 @@
 import type { Seat } from '../engine/game'
 import { tileName, type StandardId } from '../engine/tiles'
-import { NAMES, POSSESSIVE } from '../names'
+import { nameOf, possessive } from '../names'
+import { useSeating } from '../seat'
 import Tile from './Tile'
 
 interface Props {
@@ -13,11 +14,16 @@ interface Props {
 
 /** A player's discards, oldest first. */
 export default function River({ seat, tiles, latest, side }: Props) {
+  const seating = useSeating()
   return (
     <div
       className={`river river-${side}`}
       role="img"
-      aria-label={tiles.length ? `${POSSESSIVE[seat]} discards: ${tiles.map(tileName).join(', ')}` : `${NAMES[seat]} has not discarded yet`}
+      aria-label={
+        tiles.length
+          ? `${possessive(seating, seat)} discards: ${tiles.map(tileName).join(', ')}`
+          : `${nameOf(seating, seat)} ${seat === seating.me ? 'have' : 'has'} not discarded yet`
+      }
     >
       {tiles.map((t, i) => (
         <span key={i} className={`river-tile${latest && i === tiles.length - 1 ? ' river-latest' : ''}`}>

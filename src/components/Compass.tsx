@@ -1,12 +1,14 @@
 import { dealerOf, handInRound, prevailingOf, type GameState } from '../engine/game'
 import { WIND_CHAR } from '../engine/tiles'
-import { HUMAN } from '../hooks/useGame'
-import { NAMES, WIND_NAME } from '../names'
+import { WIND_NAME, conjugate, nameOf } from '../names'
+import { useSeating } from '../seat'
 
 /** The marker in the middle of the table: round wind, hand, tiles left. */
 export default function Compass({ state }: { state: GameState }) {
+  const seating = useSeating()
   const wind = prevailingOf(state)
   const hand = handInRound(state)
+  const dealer = dealerOf(state)
   return (
     <div className="compass" aria-live="polite">
       <div className="compass-wind" lang="zh-Hant" aria-hidden="true">
@@ -20,7 +22,7 @@ export default function Compass({ state }: { state: GameState }) {
         </div>
         <div>{state.wall.length} in the wall</div>
         <div className="compass-dealer">
-          {NAMES[dealerOf(state)]} {dealerOf(state) === HUMAN ? 'deal' : 'deals'}
+          {nameOf(seating, dealer)} {conjugate(seating, dealer, 'deal', 'deals')}
         </div>
       </div>
     </div>

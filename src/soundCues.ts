@@ -1,5 +1,4 @@
-import type { GameState } from './engine/game'
-import { HUMAN } from './hooks/useGame'
+import type { GameState, Seat } from './engine/game'
 import type { Cue } from './sound'
 
 export interface SoundMark {
@@ -13,8 +12,8 @@ export interface ScheduledCue {
   at: number
 }
 
-export function markOf(s: GameState): SoundMark {
-  const drawn = s.phase === 'discard' && s.current === HUMAN && s.drawn ? `${s.log.length}:${s.drawn}` : null
+export function markOf(s: GameState, me: Seat = 0): SoundMark {
+  const drawn = s.phase === 'discard' && s.current === me && s.drawn ? `${s.log.length}:${s.drawn}` : null
   return { hand: s.handIndex, log: s.log.length, drawn }
 }
 
@@ -22,7 +21,7 @@ export function markOf(s: GameState): SoundMark {
  * Which sounds a change of state calls for, with a short stagger when
  * several things happened in one step. Pure, so it can be tested.
  */
-export function cuesFor(prev: SoundMark | null, s: GameState): ScheduledCue[] {
+export function cuesFor(prev: SoundMark | null, s: GameState, me: Seat = 0): ScheduledCue[] {
   const out: ScheduledCue[] = []
   if (!prev) return out
   if (prev.hand !== s.handIndex) {
@@ -62,7 +61,7 @@ export function cuesFor(prev: SoundMark | null, s: GameState): ScheduledCue[] {
         break
     }
   }
-  const mark = markOf(s)
+  const mark = markOf(s, me)
   if (mark.drawn && mark.drawn !== prev.drawn) out.push({ cue: 'draw', at })
   return out
 }

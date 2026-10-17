@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react'
-import type { GameState } from '../engine/game'
+import type { GameState, Seat } from '../engine/game'
 import { play, setMuted, unlock } from '../sound'
 import { cuesFor, markOf, type SoundMark } from '../soundCues'
 
 /** Plays the table sounds that follow from each change of state. */
-export function useSounds(state: GameState | null, enabled: boolean) {
+export function useSounds(state: GameState | null, enabled: boolean, me: Seat) {
   const mark = useRef<SoundMark | null>(null)
   // A game that is already on the table when the page opens resumes quietly;
   // a deal made from the lobby gets the wash.
@@ -35,8 +35,8 @@ export function useSounds(state: GameState | null, enabled: boolean) {
       return
     }
     if (mark.current === null && !opening.current) play('deal')
-    else for (const c of cuesFor(mark.current, state)) play(c.cue, c.at)
-    mark.current = markOf(state)
+    else for (const c of cuesFor(mark.current, state, me)) play(c.cue, c.at)
+    mark.current = markOf(state, me)
     opening.current = false
-  }, [state])
+  }, [state, me])
 }

@@ -346,8 +346,10 @@ export interface TileProps extends TileFaceProps {
 }
 
 /** A standalone tile as an inline SVG, in whichever style the table is set to. */
-export default function Tile({ id, hint, size = 60, back = false, turned = false, className, decorative }: TileProps) {
+export default function Tile({ id, hint, size = 60, back: faceDown = false, turned = false, className, decorative }: TileProps) {
   const style = useContext(TileStyleContext)
+  // A tile this device may not see (see engine/view.ts) is drawn face down.
+  const back = faceDown || !(id in TILE_BY_ID)
   const classic = style === 'classic'
   const w0 = classic ? CLASSIC_W : TILE_W
   const h0 = classic ? CLASSIC_H : TILE_H

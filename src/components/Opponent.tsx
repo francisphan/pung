@@ -1,6 +1,7 @@
 import { dealerOf, seatWind, type GameState, type Seat } from '../engine/game'
 import { WIND_CHAR } from '../engine/tiles'
-import { NAMES, WIND_NAME, formatPoints } from '../names'
+import { WIND_NAME, formatPoints, nameOf } from '../names'
+import { useSeating } from '../seat'
 import { Flowers, MeldRow } from './Melds'
 import Tile from './Tile'
 
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export default function Opponent({ state, seat, layout }: Props) {
+  const seating = useSeating()
+  const name = nameOf(seating, seat)
   const p = state.players[seat]
   const wind = seatWind(state, seat)
   const dealer = dealerOf(state) === seat
@@ -21,12 +24,12 @@ export default function Opponent({ state, seat, layout }: Props) {
     <Tile key={i} id="WE" back turned={layout === 'side'} size={layout === 'top' ? 28 : 24} decorative />
   ))
   return (
-    <section className={`seat seat-${layout}${active ? ' seat-active' : ''}`} aria-label={`${NAMES[seat]}, ${WIND_NAME[wind]}`}>
+    <section className={`seat seat-${layout}${active ? ' seat-active' : ''}`} aria-label={`${name}, ${WIND_NAME[wind]}`}>
       <header className="seat-head">
         <span className="seat-wind" lang="zh-Hant" aria-hidden="true">
           {WIND_CHAR[wind]}
         </span>
-        <span className="seat-name">{NAMES[seat]}</span>
+        <span className="seat-name">{name}</span>
         {dealer && (
           <span className="dealer-mark" title="Dealer">
             <span lang="zh-Hant">莊</span>

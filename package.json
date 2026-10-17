@@ -8,13 +8,17 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "server": "node dist-server/index.mjs",
+    "server:dev": "tsx watch server/index.ts",
+    "server:build": "vite build -c vite.server.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "tiles": "node scripts/build-tiles.mjs"
   },
   "dependencies": {
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -24,6 +28,7 @@
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/ws": "^8.18.2",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -31,6 +36,7 @@
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
     "svgo": "^4.1.0",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",

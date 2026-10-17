@@ -15,7 +15,7 @@ describe('App', () => {
     const hand = screen.getByRole('group', { name: 'Your tiles' })
     expect(within(hand).getAllByRole('button')).toHaveLength(14)
     expect(screen.getByRole('status')).toHaveTextContent(/your turn/i)
-    expect(screen.getByText(/East round/)).toBeInTheDocument()
+    expect(screen.getByText('East round')).toBeInTheDocument()
   })
 
   it('picks a tile on the first tap and discards it on the second', async () => {

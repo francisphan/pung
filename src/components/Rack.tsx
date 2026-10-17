@@ -1,8 +1,8 @@
 import { useRef, type KeyboardEvent } from 'react'
 import { dealerOf, seatWind, type GameState } from '../engine/game'
 import { WIND_CHAR, sortTiles, tileName, type StandardId } from '../engine/tiles'
-import { HUMAN } from '../hooks/useGame'
 import { WIND_NAME, formatPoints } from '../names'
+import { useSeating } from '../seat'
 import { play } from '../sound'
 import { Flowers, MeldRow } from './Melds'
 import Tile from './Tile'
@@ -17,13 +17,14 @@ interface Props {
 
 /** Your tiles, drawn tile apart on the right. Tap to pick, tap again to throw. */
 export default function Rack({ state, selected, onSelect, onDiscard }: Props) {
-  const p = state.players[HUMAN]
-  const myTurn = state.phase === 'discard' && state.current === HUMAN
+  const { me, names } = useSeating()
+  const p = state.players[me]
+  const myTurn = state.phase === 'discard' && state.current === me
   const drawn = myTurn ? state.drawn : null
   const rest = [...p.concealed]
   if (drawn) rest.splice(rest.indexOf(drawn), 1)
   const row = sortTiles(rest)
-  const wind = seatWind(state, HUMAN)
+  const wind = seatWind(state, me)
   const ref = useRef<HTMLDivElement>(null)
 
   function tap(key: string, tile: StandardId) {
@@ -81,8 +82,8 @@ export default function Rack({ state, selected, onSelect, onDiscard }: Props) {
         <span className="seat-wind" lang="zh-Hant" aria-hidden="true">
           {WIND_CHAR[wind]}
         </span>
-        <span className="seat-name">You</span>
-        {dealerOf(state) === HUMAN && (
+        <span className="seat-name">{names[me] === 'You' ? 'You' : `You (${names[me]})`}</span>
+        {dealerOf(state) === me && (
           <span className="dealer-mark" title="Dealer">
             <span lang="zh-Hant">莊</span>
             <span className="sr-only"> dealer</span>

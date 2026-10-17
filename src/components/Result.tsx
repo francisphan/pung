@@ -1,14 +1,18 @@
-import { dealerOf, type GameState, type WinResult } from '../engine/game'
+import { dealerOf, type GameState, type Seat, type WinResult } from '../engine/game'
 import { PATTERN_BY_ID } from '../engine/scoring'
 import { tileName } from '../engine/tiles'
-import { HUMAN } from '../hooks/useGame'
-import { NAMES, POSSESSIVE, formatDelta, formatPoints } from '../names'
+import { conjugate, formatDelta, formatPoints, isMe, nameOf, possessive } from '../names'
+import { useSeating } from '../seat'
 import { Flowers, Meld } from './Melds'
 import Tile from './Tile'
 
 interface Props {
   state: GameState
   onNext: () => void
+  /** Whether this device may deal the next hand. At an online table only the host does. */
+  canAdvance?: boolean
+  /** Who everyone else is waiting for. */
+  waitingFor?: string | null
 }
 
 function WinningHand({ r }: { r: WinResult }) {
@@ -45,7 +49,8 @@ function WinningHand({ r }: { r: WinResult }) {
 }
 
 /** The card shown when a hand ends. */
-export default function Result({ state, onNext }: Props) {
+export default function Result({ state, onNext, canAdvance = true, waitingFor = null }: Props) {
+  const seating = useSeating()
   const r = state.result
   if (!r) return null
   const dealer = dealerOf(state)
@@ -62,18 +67,18 @@ export default function Result({ state, onNext }: Props) {
               Nobody wins
             </h2>
             <p className="card-sub">
-              The wall ran out. {NAMES[dealer]} {dealer === HUMAN ? 'deal' : 'deals'} again.
+              The wall ran out. {nameOf(seating, dealer)} {conjugate(seating, dealer, 'deal', 'deals')} again.
             </p>
           </>
         ) : (
           <>
             <h2 id="result-title" className="card-title">
-              {r.winner === HUMAN ? 'You win' : `${NAMES[r.winner]} wins`}
+              {isMe(seating, r.winner) ? 'You win' : `${nameOf(seating, r.winner)} wins`}
             </h2>
             <p className="card-sub">
               {r.from === null
                 ? `Self-drawn ${tileName(r.winningTile)}.`
-                : `${POSSESSIVE[r.from]} ${tileName(r.winningTile)} completed the hand.`}
+                : `${possessive(seating, r.from)} ${tileName(r.winningTile)} completed the hand.`}
             </p>
             <WinningHand r={r} />
             <div className="score-grid">
@@ -101,7 +106,7 @@ export default function Result({ state, onNext }: Props) {
                 <div className="total-label">{r.score.limit ? 'faan, the limit' : 'faan'}</div>
                 <div className="total-points">
                   {formatPoints(r.points)} points
-                  {r.from === null ? ' from each player' : `, ${NAMES[r.from]} pays in full`}
+                  {r.from === null ? ' from each player' : `, ${nameOf(seating, r.from, true)} ${conjugate(seating, r.from, 'pay', 'pays')} in full`}
                 </div>
               </div>
             </div>
@@ -110,8 +115,8 @@ export default function Result({ state, onNext }: Props) {
         <table className="standings">
           <tbody>
             {state.players.map((p, i) => (
-              <tr key={i} className={i === HUMAN ? 'standings-you' : undefined}>
-                <td>{NAMES[i as 0 | 1 | 2 | 3]}</td>
+              <tr key={i} className={isMe(seating, i as Seat) ? 'standings-you' : undefined}>
+                <td>{nameOf(seating, i as Seat)}</td>
                 <td className={`num delta ${r.deltas[i] > 0 ? 'delta-up' : r.deltas[i] < 0 ? 'delta-down' : ''}`}>{formatDelta(r.deltas[i])}</td>
                 <td className="num">{formatPoints(p.score)}</td>
               </tr>
@@ -119,9 +124,15 @@ export default function Result({ state, onNext }: Props) {
           </tbody>
         </table>
         <div className="card-actions">
-          <button type="button" className="act act-primary" onClick={onNext} autoFocus>
-            {nextLabel}
-          </button>
+          {canAdvance ? (
+            <button type="button" className="act act-primary" onClick={onNext} autoFocus>
+              {nextLabel}
+            </button>
+          ) : (
+            <p className="card-wait" role="status">
+              Waiting for {waitingFor ?? 'the host'} to {lastHand ? 'close the game' : 'deal the next hand'}.
+            </p>
+          )}
         </div>
       </div>
     </div>
