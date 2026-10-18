@@ -30,6 +30,8 @@ jobs:
         env:
           # wss://… of a running table server (repository variable); without it online play is off.
           VITE_PUNG_SERVER: ${{ vars.PUNG_SERVER_URL }}
+          # https://<code>.goatcounter.com (repository variable); without it nothing is counted.
+          VITE_GOATCOUNTER: ${{ vars.PUNG_GOATCOUNTER }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

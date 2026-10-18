@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { aiDecisions, aiTurn } from '../engine/ai'
 import { DEFAULT_RULES, newGame, reduce, type Action, type Decision, type GameState, type Rules } from '../engine/game'
 import { randomSeed } from '../engine/rng'
 import type { StandardId } from '../engine/tiles'
 import { EMPTY_LOG, withState, type LogHistory } from '../log'
+import { track, trackRules } from '../metrics'
 import { SOLO } from '../names'
 import { BOT_DELAY } from '../pace'
 
@@ -98,6 +99,18 @@ export function useGame() {
 
   const delay = BOT_DELAY
 
+  // Count each hand's outcome and the end of the game, once.
+  const counted = useRef<string | null>(null)
+  useEffect(() => {
+    if (!state) return
+    const key = state.phase === 'gameEnd' ? `${state.seed}:end` : state.phase === 'handEnd' ? `${state.seed}:${state.handIndex}` : null
+    if (!key || counted.current === key) return
+    counted.current = key
+    if (state.phase === 'gameEnd') track('game/end', 'Game played to the end')
+    else if (state.result?.kind === 'draw') track('hand/draw', 'Hand drawn')
+    else if (state.result) track(state.result.winner === HUMAN ? 'hand/win/person' : 'hand/win/bot', 'Hand won')
+  }, [state])
+
   // Let the opponents move.
   useEffect(() => {
     if (!state) return
@@ -120,6 +133,8 @@ export function useGame() {
     () => ({
       start(rules: Rules) {
         dispatch({ type: 'newGame', rules, seed: randomSeed() })
+        track('deal/solo', 'Solo game dealt')
+        trackRules(rules)
       },
       quit() {
         dispatch({ type: 'quit' })

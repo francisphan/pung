@@ -37,6 +37,10 @@ Nothing to set up: the host's browser runs the table. The site on GitHub Pages i
 
 **A table server instead.** For tables that must outlive the host's page (a tournament, a host on a flaky connection), the same room logic runs in a small Node WebSocket server, `server/`, which then runs the game and the bots and lets anyone, host included, drop out and come back. See *Deploy*. With a server configured, hosting and joining go through it and nothing is hosted in a browser.
 
+## Metrics
+
+Set the repository variable `PUNG_GOATCOUNTER` to a [GoatCounter](https://www.goatcounter.com/) site, such as `https://pung.goatcounter.com`, and the build loads its script: page views plus a dozen named events (`deal/solo`, `deal/table/2p`, `rules/min-3`, `hand/win/person`, `hand/win/bot`, `hand/draw`, `game/end`, `table/host`, `table/join`, `table/host-failed`, `table/join-failed`; the list is in `src/metrics.ts`). GoatCounter sets no cookies and keeps no personal data, so there is no banner, and it skips localhost by itself. A table's deals and hands are counted by its host only. Without the variable nothing is loaded or counted.
+
 ## Develop
 
 ```bash

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import type { Rules } from '../engine/game'
 import type { Settings } from '../hooks/useGame'
+import { metricsEnabled } from '../metrics'
 import { NAME_MAX, cleanCode } from '../net/protocol'
 import { RuleChoices } from './Choice'
 import Tile from './Tile'
@@ -140,6 +141,12 @@ export default function Lobby({ settings, inProgress, online, joinCode, onStart,
         <a href="https://freesound.org/">Freesound</a>; see{' '}
         <a href="https://github.com/francisphan/pung/blob/main/CREDITS.md">credits</a>.
       </p>
+      {metricsEnabled() && (
+        <p className="lobby-credit">
+          Visits and games are counted anonymously by <a href="https://www.goatcounter.com/">GoatCounter</a>, without
+          cookies.
+        </p>
+      )}
     </div>
   )
 }

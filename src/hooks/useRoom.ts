@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react'
 import type { Decision, GameState, Rules, Seat } from '../engine/game'
 import type { StandardId } from '../engine/tiles'
 import { EMPTY_LOG, withNote, withState, type LogHistory } from '../log'
+import { track, trackRules } from '../metrics'
 import { webrtcSupported } from '../net/broker'
 import { Connection } from '../net/client'
 import { Host } from '../net/host'
@@ -157,7 +158,10 @@ export function useRoom(serverUrl: string | null, name: string) {
           save(ROOM_KEY, { code: msg.room.code, role: role.current } satisfies Stored)
         }
         dispatch(msg)
-        if (msg.type === 'error' && msg.fatal) drop(msg.message)
+        if (msg.type === 'error' && msg.fatal) {
+          track(role.current === 'host' ? 'table/host-failed' : 'table/join-failed', msg.message)
+          drop(msg.message)
+        }
       },
       onClose(why) {
         if (why === 'elsewhere') drop('You opened this table in another window, so this one has left it.')
@@ -192,7 +196,9 @@ export function useRoom(serverUrl: string | null, name: string) {
       })
       link.current = host
       host.start().catch(() => {
-        if (link.current === host) drop('Could not open a table: the matchmaking service could not be reached.')
+        if (link.current !== host) return
+        track('table/host-failed', 'Broker unreachable')
+        drop('Could not open a table: the matchmaking service could not be reached.')
       })
     },
     [serverUrl, handlers, id, drop],
@@ -217,6 +223,27 @@ export function useRoom(serverUrl: string | null, name: string) {
     }
   }, [available, serverUrl, id, open, drop])
 
+  // The host counts each table's deals and hands, so a table is counted once however many sit at it.
+  const counted = useRef<string | null>(null)
+  useEffect(() => {
+    const room = o.room
+    if (!room || room.host !== room.you.id) return
+    if (room.status === 'playing' && o.view && o.view.handIndex === 0 && counted.current !== `${room.code}:deal`) {
+      counted.current = `${room.code}:deal`
+      const people = room.seats.filter((s) => s.kind === 'human').length
+      track(`deal/table/${people}p`, `Table dealt with ${people} ${people === 1 ? 'person' : 'people'}`)
+      trackRules(room.rules)
+    }
+    const v = o.view
+    if (!v) return
+    const key = v.phase === 'gameEnd' ? `${room.code}:end` : v.phase === 'handEnd' ? `${room.code}:${v.handIndex}` : null
+    if (!key || counted.current === key) return
+    counted.current = key
+    if (v.phase === 'gameEnd') track('game/end', 'Game played to the end')
+    else if (v.result?.kind === 'draw') track('hand/draw', 'Hand drawn')
+    else if (v.result) track(room.seats[v.result.winner].kind === 'human' ? 'hand/win/person' : 'hand/win/bot', 'Hand won')
+  }, [o.room, o.view])
+
   const send = useCallback((msg: ClientMessage) => {
     if (!link.current?.send(msg)) dispatch({ type: 'error', message: 'Not connected to the table right now.' })
   }, [])
@@ -230,6 +257,7 @@ export function useRoom(serverUrl: string | null, name: string) {
         intent.current = viaServer ? { type: 'create', id, name: nameRef.current, rules } : null
         dispatch({ type: 'busy', hosting: !viaServer })
         dispatch({ type: 'conn', conn: 'connecting' })
+        track('table/host', 'Table hosted')
         open({ role: 'host', rules })
         if (intent.current) link.current?.send(intent.current)
       },
@@ -237,6 +265,7 @@ export function useRoom(serverUrl: string | null, name: string) {
         intent.current = { type: 'join', id, name: nameRef.current, code }
         dispatch({ type: 'busy', hosting: false })
         dispatch({ type: 'conn', conn: 'connecting' })
+        track('table/join', 'Table joined')
         open({ role: 'guest', code })
         link.current?.send(intent.current)
       },
