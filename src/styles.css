@@ -123,6 +123,79 @@ a {
   color: var(--bone);
 }
 
+/* The three pages */
+
+.pages {
+  display: flex;
+  gap: 4px;
+  margin: 10px 0 0;
+  overflow-x: auto;
+}
+
+.page-link {
+  display: inline-block;
+  padding: 8px 12px 6px;
+  border-bottom: 3px solid transparent;
+  color: var(--bone-dim);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.page-link:hover {
+  color: var(--bone);
+}
+
+.page-link[aria-current='page'] {
+  color: var(--bone);
+  border-bottom-color: var(--bamboo);
+}
+
+.page-link:focus-visible {
+  outline: 3px solid var(--bone);
+  outline-offset: -3px;
+  border-radius: 4px;
+}
+
+.doors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px 28px;
+  margin: 0 0 28px;
+  padding: 18px 0 0;
+  border-top: 1px solid rgba(243, 234, 211, 0.18);
+  list-style: none;
+}
+
+.door-title {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+}
+
+.door-title a {
+  color: var(--bone);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.door-copy {
+  margin: 0;
+  color: var(--bone-dim);
+}
+
+.learn-list {
+  max-width: 60ch;
+  margin: 0 0 22px;
+  padding-left: 22px;
+  color: var(--bone-dim);
+}
+
+.learn-list li + li {
+  margin-top: 6px;
+}
+
 /* Tiles */
 
 .tile-svg {

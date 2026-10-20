@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react'
 import { gameOverNote, guide, resultNote } from './coach'
+import Friends from './components/Friends'
 import GameOver from './components/GameOver'
+import Learn from './components/Learn'
 import Lesson from './components/Lesson'
+import Link from './components/Link'
 import Lobby from './components/Lobby'
 import Result from './components/Result'
 import RoomLobby from './components/RoomLobby'
@@ -13,6 +16,7 @@ import { SOLO, WIND_NAME, type Seating } from './names'
 import { WINDS } from './engine/tiles'
 import { cleanCode, type RoomInfo } from './net/protocol'
 import { serverUrl } from './net/serverUrl'
+import { NavContext, usePage } from './router'
 import { SeatingContext } from './seat'
 
 function seatingOf(room: RoomInfo): Seating {
@@ -29,19 +33,23 @@ export default function App() {
   const { settings, setSettings } = useSettings()
   const url = useMemo(() => serverUrl(), [])
   const joinCode = useMemo(() => cleanCode(new URLSearchParams(window.location.search).get('join')), [])
+  // A shared link lands on the friends page with its code, whatever path it used.
+  const [page, go] = usePage(joinCode ? 'friends' : undefined, joinCode ? `?join=${joinCode}` : '')
   const solo = useGame()
   const online = useRoom(url, settings.name.trim() || 'Guest')
-  // A shared link opens the lobby with its code filled in, even over a solo game in progress.
-  const [lobby, setLobby] = useState(() => joinCode !== null)
+  // "New game" over a solo game in progress shows the front page again.
+  const [lobby, setLobby] = useState(false)
 
   const room = online.room
   const inRoom = room !== null || online.busy
-  const seating = room ? seatingOf(room) : SOLO
-  const state = inRoom ? (room && room.status !== 'lobby' ? online.view : null) : solo.state
-  const showLobby = !inRoom && (lobby || !solo.state)
-  // A guided round: the coach's move for this moment, and the lesson due, if any.
-  const coached = !inRoom && solo.tutorial && solo.state ? guide(solo.state, SOLO.me, SOLO) : null
-  const lesson = !inRoom && solo.state ? solo.lesson : null
+  const guided = !!solo.state && solo.tutorial
+  const soloPlaying = !!solo.state && !solo.tutorial && !lobby
+  // The table this page shows, if any: the room on the friends page, the guided round on learn, a solo game at home.
+  let state: typeof solo.state
+  if (page === 'friends') state = room && room.status !== 'lobby' && room.you.seat !== null ? online.view : null
+  else if (page === 'learn') state = guided ? solo.state : null
+  else state = soloPlaying ? solo.state : null
+  const seating = page === 'friends' && room ? seatingOf(room) : SOLO
   useSounds(state, settings.sound, seating.me)
   const toggleLog = () => setSettings({ log: !settings.log })
   // A host's browser is the table: leaving ends it for everyone else there.
@@ -50,10 +58,53 @@ export default function App() {
     if (online.hosting && others && !window.confirm('Leaving closes the table for everyone. Leave?')) return
     online.leave()
   }
+  const coached = page === 'learn' && guided && solo.state ? guide(solo.state, SOLO.me, SOLO) : null
+  const lesson = page === 'learn' && guided ? solo.lesson : null
+
+  // A solo table, plain or guided.
+  const soloTable = (s: NonNullable<typeof solo.state>) => (
+    <SeatingContext.Provider value={SOLO}>
+      <Table
+        state={s}
+        log={solo.log}
+        logOpen={settings.log}
+        onToggleLog={toggleLog}
+        onDiscard={solo.discard}
+        onSelfWin={solo.selfWin}
+        onKong={solo.kong}
+        onDecide={solo.decide}
+        guide={coached}
+      />
+      {lesson && <Lesson title={lesson.title} body={lesson.body(s, SOLO.me, SOLO)} onDone={() => solo.finishLesson(lesson.id)} />}
+      {s.phase === 'handEnd' && <Result state={s} onNext={solo.nextHand} note={guided ? resultNote(s, SOLO.me, SOLO) : undefined} />}
+      {s.phase === 'gameEnd' && (
+        <GameOver
+          state={s}
+          note={guided ? gameOverNote() : undefined}
+          onNewGame={() => {
+            solo.quit()
+            if (guided) go('home')
+            else setLobby(true)
+          }}
+        />
+      )}
+    </SeatingContext.Provider>
+  )
 
   let main
-  if (inRoom) {
-    if (!room) {
+  if (page === 'friends') {
+    if (!inRoom) {
+      main = (
+        <Friends
+          settings={settings}
+          online={{ available: online.available, busy: online.busy, error: online.error }}
+          joinCode={joinCode}
+          onHost={() => online.host(settings.rules)}
+          onJoin={online.join}
+          onSettings={setSettings}
+        />
+      )
+    } else if (!room) {
       main = (
         <div className="waiting">
           <p>{online.conn === 'lost' ? 'Cannot reach the table server. Trying again…' : 'Finding your table…'}</p>
@@ -129,64 +180,28 @@ export default function App() {
         </SeatingContext.Provider>
       )
     }
-  } else if (showLobby) {
+  } else if (page === 'learn') {
+    main = guided && solo.state ? soloTable(solo.state) : <Learn inProgress={!!solo.state && !solo.tutorial} onStart={solo.startTutorial} />
+  } else if (soloPlaying && solo.state) {
+    main = soloTable(solo.state)
+  } else {
     main = (
       <Lobby
         settings={settings}
-        inProgress={!!solo.state && solo.state.phase !== 'gameEnd'}
-        online={{ available: online.available, busy: online.busy, error: online.error }}
-        joinCode={joinCode}
+        inProgress={!!solo.state && !solo.tutorial && solo.state.phase !== 'gameEnd'}
         onStart={(rules) => {
           solo.start(rules)
           setLobby(false)
         }}
-        onTutorial={() => {
-          solo.startTutorial()
-          setLobby(false)
-        }}
-        onHost={(rules) => {
-          setSettings({ rules })
-          online.host(rules)
-        }}
-        onJoin={online.join}
         onSettings={setSettings}
         onBack={() => setLobby(false)}
       />
     )
-  } else if (solo.state) {
-    main = (
-      <SeatingContext.Provider value={SOLO}>
-        <Table
-          state={solo.state}
-          log={solo.log}
-          logOpen={settings.log}
-          onToggleLog={toggleLog}
-          onDiscard={solo.discard}
-          onSelfWin={solo.selfWin}
-          onKong={solo.kong}
-          onDecide={solo.decide}
-          guide={coached}
-        />
-        {lesson && <Lesson title={lesson.title} body={lesson.body(solo.state, SOLO.me, SOLO)} onDone={() => solo.finishLesson(lesson.id)} />}
-        {solo.state.phase === 'handEnd' && (
-          <Result state={solo.state} onNext={solo.nextHand} note={solo.tutorial ? resultNote(solo.state, SOLO.me, SOLO) : undefined} />
-        )}
-        {solo.state.phase === 'gameEnd' && (
-          <GameOver
-            state={solo.state}
-            note={solo.tutorial ? gameOverNote() : undefined}
-            onNewGame={() => {
-              solo.quit()
-              setLobby(true)
-            }}
-          />
-        )}
-      </SeatingContext.Provider>
-    )
   }
 
+  const atTable = state !== null
   return (
-    <>
+    <NavContext.Provider value={go}>
       <div className="app">
         <header className="masthead">
           <h1 className="wordmark">
@@ -195,9 +210,14 @@ export default function App() {
               碰
             </span>
           </h1>
-          <nav className="masthead-nav">
-            {room && <span className="masthead-code">Table {room.code}</span>}
-            {!inRoom && solo.tutorial && !showLobby && <span className="masthead-code">Guided round</span>}
+          <nav className="masthead-nav" aria-label="Table">
+            {room && page === 'friends' && <span className="masthead-code">Table {room.code}</span>}
+            {room && page !== 'friends' && (
+              <Link page="friends" className="masthead-code">
+                Table {room.code}
+              </Link>
+            )}
+            {guided && page === 'learn' && <span className="masthead-code">Guided round</span>}
             <button
               type="button"
               className="link-btn"
@@ -206,24 +226,45 @@ export default function App() {
             >
               {settings.sound ? 'Sound off' : 'Sound on'}
             </button>
-            {inRoom && room?.status !== 'lobby' && (
+            {page === 'friends' && inRoom && room?.status !== 'lobby' && (
               <button type="button" className="link-btn" onClick={leave}>
                 Leave table
               </button>
             )}
-            {!inRoom && solo.state && !showLobby && (
+            {page === 'home' && soloPlaying && (
               <button type="button" className="link-btn" onClick={() => setLobby(true)}>
                 New game
               </button>
             )}
-            <a className="masthead-link" href="https://github.com/francisphan/pung">
-              Source
-            </a>
+            {page === 'learn' && guided && (
+              <button
+                type="button"
+                className="link-btn"
+                onClick={() => {
+                  if (window.confirm('End the guided round? You can start another any time.')) solo.quit()
+                }}
+              >
+                End the round
+              </button>
+            )}
           </nav>
         </header>
+        {!atTable && (
+          <nav className="pages" aria-label="Pages">
+            <Link page="home" current={page === 'home'} className="page-link">
+              Solo game
+            </Link>
+            <Link page="friends" current={page === 'friends'} className="page-link">
+              With friends
+            </Link>
+            <Link page="learn" current={page === 'learn'} className="page-link">
+              Learn to play
+            </Link>
+          </nav>
+        )}
 
         <main>{main}</main>
       </div>
-    </>
+    </NavContext.Provider>
   )
 }
