@@ -91,6 +91,29 @@ describe('scoreHand', () => {
     expect(scoreHand(big)!.total).toBe(LIMIT_FAAN)
     expect(scoreHand(big)!.limit).toBe(true)
   })
+  it('scores the dragon hands at ten, in place of all pungs, mixed one suit and the dragon pung', () => {
+    const ruby = ctx('C1 C1 C1 C4 C4 C4 C9 C9 C9 RD RD RD C2 C2')
+    expect(names(ruby)).toEqual(['rubyDragon', 'concealed'])
+    expect(scoreHand(ruby)!.total).toBe(11)
+    expect(scoreHand(ruby)!.limit).toBe(false)
+    const jade = ctx('B3 B3 B3 B5 B5 B5 B4 B4', {
+      melds: [
+        { kind: 'kong', tiles: ids('GD GD GD GD'), open: true },
+        { kind: 'pung', tiles: ids('B8 B8 B8'), open: true },
+      ],
+    })
+    expect(names(jade)).toEqual(['jadeDragon'])
+    expect(scoreHand(jade)!.total).toBe(10)
+    const pearl = ctx('D1 D1 D1 D5 D5 D5 D7 D7 D7 WD WD WD D4 D4', { selfDrawn: true })
+    expect(names(pearl)).toEqual(['pearlDragon', 'selfDrawn', 'concealed'])
+    expect(scoreHand(pearl)!.total).toBe(12)
+  })
+  it('does not give a dragon hand with a chow, the wrong dragon, a dragon pair or extra honors', () => {
+    expect(names(ctx('C1 C2 C3 C4 C4 C4 C9 C9 C9 RD RD RD C2 C2'))).toEqual(['mixedOneSuit', 'dragonPung', 'concealed'])
+    expect(names(ctx('B1 B1 B1 B4 B4 B4 B7 B7 B7 RD RD RD B2 B2'))).toEqual(['allPungs', 'mixedOneSuit', 'dragonPung', 'concealed'])
+    expect(names(ctx('C1 C1 C1 C4 C4 C4 C9 C9 C9 C5 C5 C5 RD RD'))).toEqual(['allPungs', 'mixedOneSuit', 'concealed'])
+    expect(names(ctx('C1 C1 C1 C4 C4 C4 C9 C9 C9 RD RD RD WE WE'))).toEqual(['allPungs', 'mixedOneSuit', 'dragonPung', 'concealed'])
+  })
   it('scores the four winds', () => {
     expect(names(ctx('WE WE WE WS WS WS WW WW WW C1 C2 C3 WN WN'))[0]).toBe('littleFourWinds')
     expect(names(ctx('WE WE WE WS WS WS WW WW WW WN WN WN B2 B2'))[0]).toBe('bigFourWinds')

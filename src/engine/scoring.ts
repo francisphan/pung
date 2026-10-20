@@ -4,7 +4,7 @@
  */
 import { ORDER_OF_WINDS, flowersOfSeat } from './winds'
 import { decompose, isThirteenOrphans, type Decomposition, type Hand, type Meld } from './hand'
-import { TILE_BY_ID, windTile, type BonusId, type StandardId, type Wind } from './tiles'
+import { TILE_BY_ID, windTile, type BonusId, type DragonId, type StandardId, type Suit, type Wind } from './tiles'
 
 export interface WinContext {
   /** Concealed tiles include the winning tile. */
@@ -44,6 +44,9 @@ export type PatternId =
   | 'lastTile'
   | 'robbingKong'
   | 'littleThreeDragons'
+  | 'jadeDragon'
+  | 'rubyDragon'
+  | 'pearlDragon'
   | 'bigThreeDragons'
   | 'littleFourWinds'
   | 'bigFourWinds'
@@ -85,6 +88,9 @@ export const PATTERNS: readonly Pattern[] = [
   { id: 'lastTile', name: 'Last tile', chinese: '海底撈月', faan: 1, description: 'Won on the last tile of the wall, or on the discard after it.' },
   { id: 'robbingKong', name: 'Robbing the kong', chinese: '搶槓', faan: 1, description: 'Won on the tile someone was adding to their pung.' },
   { id: 'littleThreeDragons', name: 'Little three dragons', chinese: '小三元', faan: 3, description: 'Two dragon pungs and a pair of the third. The pungs count too.' },
+  { id: 'jadeDragon', name: 'Jade dragon', chinese: '翡翠龍', faan: 10, description: 'Three pungs of bamboo, a pung of the green dragon and a pair of bamboo.' },
+  { id: 'rubyDragon', name: 'Ruby dragon', chinese: '紅寶石龍', faan: 10, description: 'Three pungs of characters, a pung of the red dragon and a pair of characters.' },
+  { id: 'pearlDragon', name: 'Pearl dragon', chinese: '珍珠龍', faan: 10, description: 'Three pungs of dots, a pung of the white dragon and a pair of dots.' },
   { id: 'bigThreeDragons', name: 'Big three dragons', chinese: '大三元', faan: LIMIT_FAAN, limit: true, description: 'Pungs of all three dragons.' },
   { id: 'littleFourWinds', name: 'Little four winds', chinese: '小四喜', faan: LIMIT_FAAN, limit: true, description: 'Three wind pungs and a pair of the fourth.' },
   { id: 'bigFourWinds', name: 'Big four winds', chinese: '大四喜', faan: LIMIT_FAAN, limit: true, description: 'Pungs of all four winds.' },
@@ -100,6 +106,10 @@ export const PATTERNS: readonly Pattern[] = [
 export const PATTERN_BY_ID: Record<PatternId, Pattern> = Object.fromEntries(
   PATTERNS.map((p) => [p.id, p]),
 ) as Record<PatternId, Pattern>
+
+/** The dragon each suit takes for its dragon hand: green for bamboo, red for characters, white for dots. */
+const DRAGON_OF_SUIT: Record<Suit, DragonId> = { bamboo: 'GD', characters: 'RD', dots: 'WD' }
+const DRAGON_HAND: Record<Suit, PatternId> = { bamboo: 'jadeDragon', characters: 'rubyDragon', dots: 'pearlDragon' }
 
 export interface ScoredPattern {
   id: PatternId
@@ -194,8 +204,20 @@ function scoreArrangement(ctx: WinContext, sets: Meld[], pair: Meld): ScoredPatt
     const scoringPair = pairTile.kind === 'dragon' || pair.tiles[0] === seat || pair.tiles[0] === prevailing
     if (!scoringPair) add('allChows')
   }
-  if (sets.every(isTriplet)) add('allPungs')
-  if (suits.size === 1) add(honors > 0 ? 'mixedOneSuit' : 'pureOneSuit')
+  // A dragon hand: three pungs of one suit, a pung of that suit's dragon and a pair of the suit.
+  // Its ten faan stand in for all pungs, mixed one suit and the dragon pung.
+  const suit = suits.size === 1 ? [...suits][0] : null
+  const dragonHand =
+    suit !== null &&
+    honors > 0 &&
+    sets.every(isTriplet) &&
+    tiles.every((t) => !isHonorTile(t) || t === DRAGON_OF_SUIT[suit]) &&
+    sets.some((s) => s.tiles[0] === DRAGON_OF_SUIT[suit])
+  if (dragonHand) add(DRAGON_HAND[suit])
+  else {
+    if (sets.every(isTriplet)) add('allPungs')
+    if (suit !== null) add(honors > 0 ? 'mixedOneSuit' : 'pureOneSuit')
+  }
   if (suits.size === 0) add('allHonors')
   if (tiles.every(isTerminal)) add('allTerminals')
   if (sets.every((s) => s.kind === 'kong')) add('fourKongs')
@@ -204,7 +226,7 @@ function scoreArrangement(ctx: WinContext, sets: Meld[], pair: Meld): ScoredPatt
   const windPungs = sets.filter((s) => isTriplet(s) && TILE_BY_ID[s.tiles[0]].kind === 'wind').length
   if (dragonPungs === 3) add('bigThreeDragons')
   else if (dragonPungs === 2 && pairTile.kind === 'dragon') add('littleThreeDragons')
-  if (dragonPungs) add('dragonPung', dragonPungs)
+  if (dragonPungs && !dragonHand) add('dragonPung', dragonPungs)
   if (windPungs === 4) add('bigFourWinds')
   else if (windPungs === 3 && pairTile.kind === 'wind') add('littleFourWinds')
   if (sets.some((s) => isTriplet(s) && s.tiles[0] === seat)) add('seatWindPung')
