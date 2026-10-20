@@ -60,21 +60,25 @@ export default function App() {
   }
   const coached = page === 'learn' && guided && solo.state ? guide(solo.state, SOLO.me, SOLO) : null
   const lesson = page === 'learn' && guided ? solo.lesson : null
+  // While a card covers the table, what lies under it is inert, so the keyboard stays in the card.
+  const modal = lesson !== null || (state !== null && (state.phase === 'handEnd' || state.phase === 'gameEnd'))
 
   // A solo table, plain or guided.
   const soloTable = (s: NonNullable<typeof solo.state>) => (
     <SeatingContext.Provider value={SOLO}>
-      <Table
-        state={s}
-        log={solo.log}
-        logOpen={settings.log}
-        onToggleLog={toggleLog}
-        onDiscard={solo.discard}
-        onSelfWin={solo.selfWin}
-        onKong={solo.kong}
-        onDecide={solo.decide}
-        guide={coached}
-      />
+      <div inert={modal}>
+        <Table
+          state={s}
+          log={solo.log}
+          logOpen={settings.log}
+          onToggleLog={toggleLog}
+          onDiscard={solo.discard}
+          onSelfWin={solo.selfWin}
+          onKong={solo.kong}
+          onDecide={solo.decide}
+          guide={coached}
+        />
+      </div>
       {lesson && <Lesson title={lesson.title} body={lesson.body(s, SOLO.me, SOLO)} onDone={() => solo.finishLesson(lesson.id)} />}
       {s.phase === 'handEnd' && <Result state={s} onNext={solo.nextHand} note={guided ? resultNote(s, SOLO.me, SOLO) : undefined} />}
       {s.phase === 'gameEnd' && (
@@ -150,16 +154,18 @@ export default function App() {
               </button>
             </p>
           )}
-          <Table
-            state={state}
-            log={online.log}
-            logOpen={settings.log}
-            onToggleLog={toggleLog}
-            onDiscard={online.discard}
-            onSelfWin={online.selfWin}
-            onKong={online.kong}
-            onDecide={online.decide}
-          />
+          <div inert={modal}>
+            <Table
+              state={state}
+              log={online.log}
+              logOpen={settings.log}
+              onToggleLog={toggleLog}
+              onDiscard={online.discard}
+              onSelfWin={online.selfWin}
+              onKong={online.kong}
+              onDecide={online.decide}
+            />
+          </div>
           {state.phase === 'handEnd' && (
             <Result
               state={state}
@@ -203,10 +209,10 @@ export default function App() {
   return (
     <NavContext.Provider value={go}>
       <div className="app">
-        <a className="skip-link" href="#main">
+        <a className="skip-link" href="#main" inert={modal}>
           Skip to the table
         </a>
-        <header className="masthead">
+        <header className="masthead" inert={modal}>
           <h1 className="wordmark">
             Pung
             <span className="wordmark-cjk" lang="zh-Hant" aria-hidden="true">
@@ -214,19 +220,18 @@ export default function App() {
             </span>
           </h1>
           <nav className="masthead-nav" aria-label="Table">
-            {room && page === 'friends' && <span className="masthead-code">Table {room.code}</span>}
+            {room && page === 'friends' && (
+              <span className="masthead-code" translate="no">
+                Table {room.code}
+              </span>
+            )}
             {room && page !== 'friends' && (
               <Link page="friends" className="masthead-code">
-                Table {room.code}
+                <span translate="no">Table {room.code}</span>
               </Link>
             )}
             {guided && page === 'learn' && <span className="masthead-code masthead-note">Guided round</span>}
-            <button
-              type="button"
-              className="link-btn"
-              aria-pressed={settings.sound}
-              onClick={() => setSettings({ sound: !settings.sound })}
-            >
+            <button type="button" className="link-btn" onClick={() => setSettings({ sound: !settings.sound })}>
               {settings.sound ? 'Sound off' : 'Sound on'}
             </button>
             {page === 'friends' && inRoom && room?.status !== 'lobby' && (

@@ -10,7 +10,7 @@ export default function Compass({ state }: { state: GameState }) {
   const hand = handInRound(state)
   const dealer = dealerOf(state)
   return (
-    <div className="compass" aria-live="polite">
+    <div className="compass">
       <div className="compass-wind" lang="zh-Hant" aria-hidden="true">
         {WIND_CHAR[wind]}
       </div>

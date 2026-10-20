@@ -28,6 +28,14 @@ export default function GameOver({ state, onNewGame, canRestart = true, waitingF
           {state.rules.rounds === 1 ? 'The East round is over.' : 'All four rounds are played.'}
         </p>
         <table className="standings standings-final">
+          <caption className="sr-only">Final standings</caption>
+          <thead className="sr-only">
+            <tr>
+              <th scope="col">Place</th>
+              <th scope="col">Player</th>
+              <th scope="col">Points</th>
+            </tr>
+          </thead>
           <tbody>
             {order.map((seat, i) => (
               <tr key={seat} className={isMe(seating, seat) ? 'standings-you' : undefined}>

@@ -111,13 +111,15 @@ export default function Log({ log, open, onToggle }: Props) {
       <header className="log-head">
         <h2 className="log-title">Log</h2>
         <button type="button" className="link-btn" aria-expanded={open} aria-controls="table-log" onClick={onToggle}>
-          {open ? 'Hide' : 'Show'}
+          {open ? 'Hide log' : 'Show log'}
         </button>
       </header>
-      {open && (
+      {open ? (
         <ol id="table-log" className="log-list" ref={list} onScroll={onScroll}>
           {lines.length ? lines : <li className="log-line log-note">Nothing has happened yet.</li>}
         </ol>
+      ) : (
+        <ol id="table-log" className="log-list" hidden />
       )}
     </section>
   )

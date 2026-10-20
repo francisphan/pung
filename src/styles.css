@@ -10,8 +10,10 @@
   --ink-dim: #6e6354;
   --lacquer: #c23a2b;
   --lacquer-deep: #a2301f;
+  --lacquer-shade: #86281a;
   --jade: #2a9d5c;
   --jade-deep: #1f7a46;
+  --jade-shade: #186339;
   --indigo: #2f5d9e;
   --bamboo: #c9a45c;
   --bamboo-deep: #8f7336;
@@ -64,7 +66,8 @@ body {
   flex-direction: column;
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 16px 20px;
+  padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
 }
 
 a {
@@ -80,7 +83,7 @@ a {
 /* Keyboard users jump past the masthead; the link shows only while focused. */
 .skip-link {
   position: absolute;
-  top: 8px;
+  top: max(8px, env(safe-area-inset-top));
   left: 16px;
   z-index: 20;
   padding: 8px 14px;
@@ -620,7 +623,8 @@ main:focus {
 
 .hand-tile {
   width: var(--w, var(--tile-hand));
-  padding: 0;
+  /* A little height above and below the face, so the target is taller than the tile looks. */
+  padding: 6px 0 2px;
   border: 0;
   background: none;
   line-height: 0;
@@ -749,9 +753,9 @@ main:focus {
 
 .act-win,
 .act-primary {
-  background: var(--lacquer);
+  background: var(--lacquer-deep);
   color: var(--bone);
-  border-color: var(--lacquer-deep);
+  border-color: var(--lacquer-shade);
 }
 
 .act-win .act-cjk {
@@ -979,11 +983,11 @@ main:focus {
 }
 
 .standings .delta-up {
-  color: var(--jade-deep);
+  color: var(--jade-shade);
 }
 
 .standings .delta-down {
-  color: var(--lacquer);
+  color: var(--lacquer-deep);
 }
 
 .place {
@@ -1083,7 +1087,6 @@ main:focus {
 
 .choice-note {
   font-size: 13px;
-  opacity: 0.85;
 }
 
 .lobby-actions {
@@ -1308,20 +1311,23 @@ main:focus {
 
 .peek {
   position: fixed;
-  top: 10px;
+  top: max(10px, env(safe-area-inset-top));
   left: 50%;
   z-index: 10;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 8px 12px;
+  width: max-content;
   max-width: calc(100% - 24px);
-  padding: 8px 10px 8px 16px;
-  border-radius: 999px;
+  padding: 8px 12px;
+  border-radius: 24px;
   border-bottom: 4px solid var(--bone-shade);
   background: var(--bone);
   color: var(--ink);
+  text-align: center;
   transform: translateX(-50%);
-  white-space: nowrap;
 }
 
 /* The guided round: the coach's pick glows, and its words carry a tag */
@@ -1374,7 +1380,7 @@ main:focus {
 
 .status-coach {
   text-align: left;
-  max-width: 760px;
+  max-width: 72ch;
   margin: 0 auto;
 }
 
@@ -1522,7 +1528,7 @@ main:focus {
 
 .field input::placeholder {
   color: var(--bone-dim);
-  opacity: 0.6;
+  opacity: 1;
 }
 
 .field .code-input {
@@ -1547,7 +1553,9 @@ main:focus {
 }
 
 .room-code-label {
+  margin: 0;
   color: var(--bone-dim);
+  font: inherit;
   font-weight: 700;
 }
 
@@ -1667,4 +1675,22 @@ main:focus {
   .room-code-value {
     font-size: 38px;
   }
+}
+
+/* On bone surfaces the bone focus ring would vanish, and a bone button needs a firmer edge. */
+.card :focus-visible,
+.peek :focus-visible {
+  outline-color: var(--ink);
+}
+
+.card .act:not(.act-primary):not(.act-win),
+.peek .act {
+  border-color: var(--ink-dim);
+  border-bottom-color: var(--ink-dim);
+}
+
+/* A long log renders only the lines in view. */
+.log-line {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 44px;
 }

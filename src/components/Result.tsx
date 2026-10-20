@@ -60,7 +60,8 @@ export default function Result({ state, onNext, canAdvance = true, waitingFor = 
     setPeek(true)
     // The table, not the log, is what there is to see.
     try {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' })
     } catch {
       /* not every browser takes the options form */
     }
@@ -107,6 +108,7 @@ export default function Result({ state, onNext, canAdvance = true, waitingFor = 
             <WinningHand r={r} />
             <div className="score-grid">
               <table className="patterns">
+                <caption className="sr-only">Patterns in the hand and their faan</caption>
                 <tbody>
                   {r.score.patterns.map((p) => {
                     const def = PATTERN_BY_ID[p.id]
@@ -143,6 +145,14 @@ export default function Result({ state, onNext, canAdvance = true, waitingFor = 
           </p>
         )}
         <table className="standings">
+          <caption className="sr-only">Standings</caption>
+          <thead className="sr-only">
+            <tr>
+              <th scope="col">Player</th>
+              <th scope="col">This hand</th>
+              <th scope="col">Total</th>
+            </tr>
+          </thead>
           <tbody>
             {state.players.map((p, i) => (
               <tr key={i} className={isMe(seating, i as Seat) ? 'standings-you' : undefined}>

@@ -40,7 +40,7 @@ function SeatCard({
   const isHost = room.host === room.you.id
   const label = `${WIND_NAME[wind]} seat`
   return (
-    <div className={`seat-card${mine ? ' seat-card-mine' : ''}`} aria-label={label}>
+    <section className={`seat-card${mine ? ' seat-card-mine' : ''}`} aria-label={label}>
       <div className="seat-card-wind">
         <span lang="zh-Hant" aria-hidden="true">
           {WIND_CHAR[wind]}
@@ -79,7 +79,7 @@ function SeatCard({
           </button>
         )}
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -117,13 +117,17 @@ export default function RoomLobby({ room, conn, error, hosting, onSit, onBot, on
         </p>
       )}
       <div className="room-code">
-        <span className="room-code-label">Table code</span>
-        <span className="room-code-value" aria-label={`Table code ${room.code.split('').join(' ')}`}>
+        <h2 className="room-code-label">Table code</h2>
+        <span className="room-code-value" aria-hidden="true" translate="no">
           {room.code}
         </span>
+        <span className="sr-only">{room.code.split('').join(' ')}</span>
         <button type="button" className="link-btn" onClick={copy}>
           {copied ? 'Link copied' : 'Copy link'}
         </button>
+        <span className="sr-only" role="status">
+          {copied ? 'Link copied' : ''}
+        </span>
       </div>
       <p className="lobby-copy">
         {isHost

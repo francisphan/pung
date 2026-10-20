@@ -16,10 +16,15 @@ interface Props {
 export default function Friends({ settings, online, joinCode, onHost, onJoin, onSettings }: Props) {
   const [code, setCode] = useState(joinCode ?? '')
   const validCode = cleanCode(code)
+  // Which button was pressed, so it can say what it is doing while the table is found.
+  const [pressed, setPressed] = useState<'host' | 'join' | null>(null)
+  const doing = online.busy ? pressed : null
 
   function join(e: FormEvent) {
     e.preventDefault()
-    if (validCode) onJoin(validCode)
+    if (!validCode) return
+    setPressed('join')
+    onJoin(validCode)
   }
 
   return (
@@ -48,8 +53,16 @@ export default function Friends({ settings, online, joinCode, onHost, onJoin, on
             </label>
           </div>
           <div className="friends-row">
-            <button type="button" className="act act-primary" disabled={online.busy} onClick={onHost}>
-              Host a table
+            <button
+              type="button"
+              className="act act-primary"
+              disabled={online.busy}
+              onClick={() => {
+                setPressed('host')
+                onHost()
+              }}
+            >
+              {doing === 'host' ? 'Hosting…' : 'Host a table'}
             </button>
             <form className="friends-join" onSubmit={join}>
               <label className="field">
@@ -69,7 +82,7 @@ export default function Friends({ settings, online, joinCode, onHost, onJoin, on
                 />
               </label>
               <button type="submit" className="act" disabled={!validCode || online.busy}>
-                Join
+                {doing === 'join' ? 'Joining…' : 'Join'}
               </button>
             </form>
           </div>
