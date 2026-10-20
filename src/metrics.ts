@@ -8,6 +8,8 @@
  *   deal/solo            a solo game dealt
  *   deal/tutorial        a guided round dealt
  *   tutorial/end         a guided round played to the end
+ *   lesson/tiles         a primer lesson opened (tiles, sets, round, scoring, glossary)
+ *   quiz/tile/right      a tile-quiz answer (also wrong); quiz/wait/… and quiz/score/… for the other drills
  *   deal/table/2p        a table dealt, counted by its host, with the number of people at it
  *   rules/min-3          the minimum faan chosen at a deal (0, 1 or 3)
  *   rules/rounds-4       the length chosen at a deal (1 or 4)

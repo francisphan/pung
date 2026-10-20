@@ -24,5 +24,5 @@ function pages(names: string[]): Plugin {
 // Served from a GitHub Pages project subpath in production; root in dev.
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/pung/' : '/',
-  plugins: [react(), pages(['friends', 'learn'])],
+  plugins: [react(), pages(['friends', 'learn', 'learn/tiles', 'learn/sets', 'learn/round', 'learn/scoring', 'learn/glossary'])],
 }))

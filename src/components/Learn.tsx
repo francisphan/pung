@@ -1,3 +1,7 @@
+import { LESSON_INFO } from '../primer/catalog'
+import { LESSONS } from '../router'
+import Link from './Link'
+
 interface Props {
   /** A solo game is saved and would be replaced. */
   inProgress: boolean
@@ -27,10 +31,24 @@ export default function Learn({ inProgress, onStart }: Props) {
         </button>
       </div>
       {inProgress && <p className="lobby-foot">This replaces the solo game you have going.</p>}
-      <p className="lobby-foot">
-        Prefer to read first? <a href="https://francisphan.github.io/sparrow/">Sparrow</a> teaches the tiles, the sets
-        and the scoring from scratch.
-      </p>
+
+      <h3 className="lobby-sub">Prefer to read first?</h3>
+      <p className="lobby-copy">Five short lessons, from the tiles to the scoring, each with something to try.</p>
+      <ol className="lesson-list">
+        {LESSONS.map((id) => (
+          <li key={id}>
+            <Link page={`learn/${id}`} className="lesson-link">
+              <span className="lesson-mark" aria-hidden="true">
+                {LESSON_INFO[id].mark}
+              </span>
+              <span>
+                <span className="lesson-title">{LESSON_INFO[id].label}</span>
+                <span className="lesson-blurb">{LESSON_INFO[id].blurb}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
     </div>
   )
 }

@@ -14,6 +14,8 @@
   --jade: #2a9d5c;
   --jade-deep: #1f7a46;
   --jade-shade: #186339;
+  --jade-felt: #7fd9a3;
+  --lacquer-felt: #f5a090;
   --indigo: #2f5d9e;
   --bamboo: #c9a45c;
   --bamboo-deep: #8f7336;
@@ -260,6 +262,59 @@ main:focus {
 
 .door-copy {
   margin: 0;
+  color: var(--bone-dim);
+}
+
+.lobby-sub {
+  margin: 30px 0 4px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+}
+
+.lesson-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 60ch;
+}
+
+.lesson-link {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px solid rgba(243, 234, 211, 0.18);
+  color: var(--bone);
+  text-decoration: none;
+}
+
+.lesson-list li:last-child .lesson-link {
+  border-bottom: 1px solid rgba(243, 234, 211, 0.18);
+}
+
+.lesson-mark {
+  flex: none;
+  width: 1.4em;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--lacquer-felt);
+}
+
+.lesson-title {
+  display: block;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.lesson-link:hover .lesson-title {
+  text-decoration-thickness: 2.5px;
+}
+
+.lesson-blurb {
+  display: block;
   color: var(--bone-dim);
 }
 

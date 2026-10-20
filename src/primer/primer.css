@@ -1,0 +1,1068 @@
+/*
+ * The primer's styles, brought over from Sparrow and scoped under .primer so
+ * nothing here touches the table. Page chrome (masthead, footer, selection,
+ * skip link) comes from styles.css.
+ */
+.primer {
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.primer .tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 16px 0 24px;
+}
+
+.primer .tab {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 64px;
+  padding: 7px 11px 8px;
+  border: 1.5px solid var(--bone-dim);
+  border-bottom-width: 4px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--bone-dim);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  font-family: var(--font-body);
+}
+
+.primer .tab:hover {
+  color: var(--bone);
+  border-color: var(--bone);
+}
+
+.primer .tab[aria-current='page'] {
+  background: var(--bone);
+  color: var(--ink);
+  border-color: var(--bone);
+  border-bottom-color: var(--bone-shade);
+}
+
+.primer .tab-mark {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.primer .tab[aria-current='page'] .tab-mark {
+  color: var(--lacquer);
+}
+
+.primer .tab-label {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 11em;
+}
+
+.primer .lesson {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 1fr);
+  grid-template-areas: 'stage panel';
+  gap: 32px;
+  align-items: start;
+}
+
+.primer .lesson > .stage {
+  grid-area: stage;
+}
+
+.primer .lesson > .panel {
+  grid-area: panel;
+}
+
+.primer .lesson-single {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'panel';
+  max-width: 900px;
+}
+
+.primer .stage {
+  min-width: 0;
+}
+
+@media (min-height: 900px) {
+.primer .stage {
+    position: sticky;
+    top: 12px;
+}
+
+}
+
+.primer .stage-tall {
+  position: static;
+}
+
+@media (max-width: 880px) {
+.primer .lesson {
+    grid-template-columns: 1fr;
+    grid-template-areas: none;
+    gap: 22px;
+}
+
+.primer .lesson > .stage,
+.primer .lesson > .panel {
+    grid-area: auto;
+}
+
+.primer .stage {
+    position: static;
+}
+
+.primer .lesson:not(.lesson-drill) > .stage {
+    order: -1;
+}
+
+}
+
+.primer .stage-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-bottom: 10px;
+}
+
+.primer .stage-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.primer .stage-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 23px;
+  margin: 26px 0 8px;
+}
+
+.primer .phase-blurb {
+  margin: 10px 0 0;
+  color: var(--bone);
+  font-size: 15.5px;
+  max-width: 66ch;
+  min-height: 3.2em;
+}
+
+.primer .drill-status {
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+  font-weight: 700;
+  font-size: 15.5px;
+  flex: 1 1 240px;
+}
+
+.primer .status-ok {
+  color: var(--jade-felt);
+}
+
+.primer .status-bad {
+  color: var(--lacquer-felt);
+}
+
+.primer .tile-svg {
+  display: block;
+  overflow: visible;
+}
+
+.primer .tile-ring {
+  fill: none;
+  stroke: none;
+  pointer-events: none;
+}
+
+.primer .tile-hint-bg {
+  fill: var(--bone);
+  stroke: var(--bone-shade);
+  stroke-width: 0.6;
+}
+
+.primer .tile-hint {
+  font-family: var(--font-body);
+  font-weight: 700;
+  fill: var(--ink-dim);
+  dominant-baseline: central;
+}
+
+.primer .catalog {
+  position: relative;
+}
+
+.primer .catalog-group h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 21px;
+  margin: 14px 0 6px;
+}
+
+.primer .catalog-group:first-child h3 {
+  margin-top: 0;
+}
+
+.primer .catalog-meta {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--bone-dim);
+}
+
+.primer .catalog-meta [lang] {
+  font-family: var(--font-cjk);
+  font-weight: 900;
+  margin-right: 4px;
+}
+
+.primer .catalog-row {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.primer .tile-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 0;
+}
+
+.primer .tile-btn .tile-svg {
+  width: 100%;
+  height: auto;
+  transition: transform 160ms var(--ease);
+}
+
+.primer .tile-btn:hover .tile-svg,
+.primer .tile-btn-on .tile-svg {
+  transform: translateY(-4px);
+}
+
+.primer .tile-btn-choice .tile-svg {
+  width: 46px;
+}
+
+.primer .tile-btn-correct .tile-ring {
+  stroke: var(--jade);
+  stroke-width: 3;
+}
+
+.primer .tile-btn-wrong {
+  opacity: 0.5;
+}
+
+.primer .tile-btn-wrong .tile-ring {
+  stroke: var(--lacquer);
+  stroke-width: 3;
+}
+
+.primer .choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.primer .float-tip {
+  position: absolute;
+  width: 250px;
+  max-width: 72%;
+  background: var(--bone);
+  color: var(--ink);
+  padding: 10px 12px 11px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  pointer-events: none;
+  transform: translate(-14px, 0);
+  box-shadow: 0 3px 0 var(--bone-shade);
+  z-index: 2;
+}
+
+.primer .float-tip-flip {
+  transform: translate(-100%, 0) translate(14px, 0);
+}
+
+.primer .float-tip strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.primer .float-tip-sub {
+  display: block;
+  color: var(--ink-dim);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.primer .float-tip p {
+  margin: 5px 0 0;
+}
+
+.primer .term-wrap {
+  position: relative;
+  display: inline;
+}
+
+.primer .term {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: help;
+  text-decoration: underline dotted var(--bone-dim);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.primer .term:hover,
+.primer .term[aria-expanded='true'] {
+  text-decoration-style: solid;
+  text-decoration-color: var(--bone);
+}
+
+.primer .term-tip {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  width: 260px;
+  background: var(--bone);
+  color: var(--ink);
+  padding: 9px 12px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 400;
+  text-align: left;
+  box-shadow: 0 3px 0 var(--bone-shade);
+  z-index: 3;
+}
+
+.primer .term-tip-flip {
+  left: auto;
+  right: 0;
+}
+
+.primer .term-tip strong {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.2;
+  margin-bottom: 3px;
+}
+
+.primer .term-cjk {
+  font-family: var(--font-cjk);
+  font-weight: 900;
+  font-size: 15px;
+  margin-left: 8px;
+  color: var(--lacquer-deep);
+}
+
+.primer .hand-row {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.primer .row-tile {
+  transition: transform 650ms var(--ease);
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+.primer .row-tile-correct .tile-ring {
+  stroke: var(--jade);
+  stroke-width: 3;
+}
+
+.primer .row-tile-open .tile-ring {
+  stroke: var(--bamboo);
+  stroke-width: 2.5;
+}
+
+.primer .hand-label line {
+  stroke: var(--bone-dim);
+  stroke-width: 3;
+}
+
+.primer .hand-label text {
+  fill: var(--bone-dim);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.primer .hand-label-correct line {
+  stroke: var(--jade-felt);
+}
+
+.primer .hand-label-correct text {
+  fill: var(--jade-felt);
+}
+
+.primer .round-table {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.primer .tt-felt {
+  fill: var(--felt-deep);
+}
+
+.primer .tt-tile {
+  transition: transform 800ms var(--ease);
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
+.primer .tt-tile-top .tile-ring {
+  fill: rgba(243, 234, 211, 0.22);
+}
+
+.primer .tt-seat {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11px;
+  fill: var(--bone-dim);
+}
+
+.primer .tt-seat-active {
+  fill: var(--bone);
+}
+
+.primer .tt-dealer {
+  fill: var(--lacquer-felt);
+  font-weight: 400;
+}
+
+.primer .tt-marker {
+  fill: var(--bone);
+  stroke: var(--bone-shade);
+}
+
+.primer .tt-marker-cjk {
+  font-family: var(--font-cjk);
+  font-weight: 900;
+  fill: var(--ink);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.primer .tt-caption {
+  font-family: var(--font-body);
+  font-size: 11px;
+  fill: var(--bone-dim);
+}
+
+.primer .tt-die rect {
+  fill: var(--bone);
+  stroke: var(--bone-shade);
+}
+
+.primer .tt-die circle {
+  fill: var(--ink);
+}
+
+.primer .tt-break {
+  stroke: var(--lacquer-felt);
+  stroke-width: 2.5;
+  stroke-dasharray: 4 3;
+}
+
+.primer .tt-callout rect {
+  fill: var(--bone);
+}
+
+.primer .tt-callout text {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11px;
+  fill: var(--ink);
+}
+
+.primer .tt-callout-wins rect {
+  fill: var(--lacquer);
+}
+
+.primer .tt-callout-wins text {
+  fill: #fff;
+}
+
+.primer .steps {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+.primer .step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 10px 4px 5px;
+  border: 1.5px solid transparent;
+  border-radius: 4px;
+  background: none;
+  color: var(--bone-dim);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.primer .step:hover {
+  color: var(--bone);
+}
+
+.primer .step small {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--felt-deep);
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--bone-dim);
+}
+
+.primer .step-on {
+  color: var(--bone);
+  border-color: var(--bone-dim);
+}
+
+.primer .step-on small {
+  background: var(--lacquer);
+  color: #fff;
+}
+
+.primer .panel h2,
+.primer .panel h3 {
+  text-wrap: balance;
+}
+
+.primer .panel h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 38px;
+  line-height: 1.05;
+  margin: 0 0 10px;
+}
+
+.primer .panel h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 23px;
+  line-height: 1.15;
+  margin: 26px 0 6px;
+}
+
+.primer .panel h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 19px;
+  margin: 0 0 3px;
+}
+
+.primer .panel p {
+  margin: 0 0 12px;
+  max-width: 62ch;
+}
+
+.primer .lede {
+  font-size: 18.5px;
+}
+
+.primer .hint {
+  color: var(--bone-dim);
+  font-size: 15px;
+}
+
+.primer .note {
+  padding: 10px 14px;
+  margin: 16px 0 0;
+  border-radius: 6px;
+  background: var(--felt-deep);
+  box-shadow: inset 0 0 0 1px rgba(243, 234, 211, 0.12);
+  max-width: 66ch;
+}
+
+.primer .watch {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  max-width: 62ch;
+}
+
+.primer .watch li {
+  margin: 4px 0;
+}
+
+.primer .facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 16px;
+  margin: 10px 0;
+  font-size: 15.5px;
+}
+
+.primer .facts dt {
+  font-weight: 700;
+  color: var(--bone-dim);
+}
+
+.primer .facts dd {
+  margin: 0;
+}
+
+.primer .check {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.primer .check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--lacquer);
+}
+
+.primer .btn,
+.primer .tab,
+.primer .seg-btn,
+.primer .step,
+.primer .tile-btn,
+.primer .quiz-opt,
+.primer .term,
+.primer .pattern {
+  touch-action: manipulation;
+}
+
+.primer .btn {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 9px 16px;
+  border: 2px solid var(--lacquer);
+  background: var(--lacquer);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1.1;
+}
+
+.primer .btn:hover {
+  background: var(--lacquer-deep);
+  border-color: var(--lacquer-deep);
+}
+
+.primer .btn-quiet {
+  background: transparent;
+  color: var(--bone);
+  border-color: var(--bone-dim);
+}
+
+.primer .btn-quiet:hover {
+  background: var(--felt-light);
+  border-color: var(--bone);
+}
+
+.primer .btn:disabled,
+.primer .btn[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.primer .btn:focus-visible,
+.primer .tab:focus-visible,
+.primer .seg-btn:focus-visible,
+.primer .step:focus-visible,
+.primer .tile-btn:focus-visible,
+.primer .quiz-opt:focus-visible,
+.primer .term:focus-visible,
+.primer .check input:focus-visible,
+.primer .pattern input:focus-visible {
+  outline: 3px solid var(--bone);
+  outline-offset: 2px;
+}
+
+.primer .seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.primer .seg-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 6px 12px 7px;
+  border: 1.5px solid var(--bone-dim);
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  color: var(--bone);
+  text-align: left;
+  line-height: 1.2;
+}
+
+.primer .seg-btn span {
+  font-family: var(--font-display);
+  font-size: 17px;
+}
+
+.primer .seg-btn small {
+  font-size: 12.5px;
+  color: var(--bone-dim);
+  margin-top: 1px;
+}
+
+.primer .seg-btn:hover {
+  border-color: var(--bone);
+}
+
+.primer .seg-on,
+.primer .seg-on:hover {
+  border-color: var(--bone);
+  background: var(--bone);
+  color: var(--ink);
+}
+
+.primer .seg-on small {
+  color: var(--ink-dim);
+}
+
+.primer .quiz {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px 18px;
+  align-items: start;
+}
+
+.primer .quiz-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.primer .quiz-opt {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--bone-dim);
+  background: transparent;
+  color: var(--bone);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.2;
+}
+
+.primer .quiz-opt:hover:enabled {
+  border-color: var(--bone);
+}
+
+.primer .quiz-opt-right {
+  background: var(--jade-deep);
+  border-color: var(--jade-deep);
+  color: #fff;
+}
+
+.primer .quiz-opt-wrong {
+  background: var(--lacquer);
+  border-color: var(--lacquer);
+  color: #fff;
+}
+
+.primer .quiz-opt-dim {
+  opacity: 0.45;
+}
+
+.primer .quiz-opt:disabled {
+  cursor: default;
+}
+
+.primer .quiz-foot {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-top: 6px;
+}
+
+.primer .quiz-foot .drill-status {
+  max-width: 58ch;
+}
+
+.primer .piece-list {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 12px;
+}
+
+.primer .piece {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.primer .piece-tiles {
+  display: flex;
+  gap: 2px;
+}
+
+.primer .piece p {
+  font-size: 15.5px;
+  margin: 0;
+}
+
+.primer .pattern-list {
+  border: 0;
+  padding: 0;
+  margin: 8px 0 12px;
+  display: grid;
+  gap: 2px;
+  max-width: 460px;
+}
+
+.primer .pattern-list legend {
+  font-weight: 700;
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+.primer .pattern {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  font-size: 15.5px;
+}
+
+.primer .pattern:hover {
+  background: var(--felt-light);
+}
+
+.primer .pattern input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--lacquer);
+  margin: 0;
+}
+
+.primer .pattern-cjk {
+  font-family: var(--font-cjk);
+  font-weight: 900;
+  color: var(--bone-dim);
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+.primer .pattern-faan {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+  font-size: 18px;
+  min-width: 1.2em;
+  text-align: right;
+}
+
+.primer .pattern-right {
+  border-color: var(--jade-felt);
+}
+
+.primer .pattern-missed {
+  border-color: var(--lacquer-felt);
+  background: rgba(194, 58, 43, 0.22);
+}
+
+.primer .pattern-extra .pattern-name {
+  text-decoration: line-through;
+  color: var(--lacquer-felt);
+}
+
+.primer .faan-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.primer .faan-table th,
+.primer .faan-table td {
+  padding: 7px 8px 7px 0;
+  border-bottom: 1px solid var(--felt-light);
+  text-align: left;
+  vertical-align: top;
+}
+
+.primer .faan-table thead th {
+  color: var(--bone-dim);
+  font-weight: 700;
+}
+
+.primer .faan-table tbody th {
+  min-width: 9em;
+}
+
+.primer .faan-table .pattern-cjk {
+  display: block;
+  margin: 0;
+}
+
+.primer .faan-table td:nth-child(2) {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.primer .glossary {
+  margin: 0;
+}
+
+.primer .glossary-item {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 6px 24px;
+  padding: 14px 0;
+  border-top: 1px solid var(--felt-light);
+}
+
+.primer .glossary-item dt {
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 1.2;
+}
+
+.primer .glossary-cjk {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--bone-dim);
+  margin-top: 4px;
+}
+
+.primer .glossary-cjk [lang] {
+  font-family: var(--font-cjk);
+  font-weight: 900;
+  font-size: 17px;
+}
+
+.primer .glossary-say {
+  margin-left: 8px;
+  font-style: italic;
+}
+
+.primer .glossary-item dd {
+  margin: 0;
+}
+
+.primer .glossary-item dd p {
+  margin: 0 0 4px;
+}
+
+@media (max-width: 560px) {
+.primer .panel h2 {
+    font-size: 32px;
+}
+
+.primer .tab {
+    min-width: 56px;
+    padding: 6px 8px 7px;
+}
+
+.primer .tab-mark {
+    font-size: 20px;
+}
+
+.primer .tab-label {
+    font-size: 12px;
+}
+
+.primer .quiz {
+    grid-template-columns: 1fr;
+}
+
+.primer .quiz-tile {
+    justify-self: center;
+}
+
+.primer .glossary-item {
+    grid-template-columns: 1fr;
+    gap: 4px;
+}
+
+.primer .catalog-row {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.primer .hand-label text {
+    font-size: 34px;
+}
+
+.primer .tt-seat,
+.primer .tt-caption,
+.primer .tt-callout text {
+    font-size: 15px;
+}
+
+.primer .float-tip {
+    max-width: 85%;
+}
+
+.primer .term-tip {
+    width: min(260px, 80vw);
+}
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+.primer .row-tile,
+.primer .tt-tile,
+.primer .tile-btn .tile-svg {
+    transition: none;
+}
+
+}
+
+.primer .primer-foot {
+  margin: 36px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(243, 234, 211, 0.18);
+  color: var(--bone-dim);
+}

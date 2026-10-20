@@ -1,19 +1,28 @@
 /**
- * Three pages, each at its own address: the solo table at the root, friends
- * at /friends/ and the guided round at /learn/. The build writes an
- * index.html into each folder, so the addresses work on GitHub Pages
- * without a server; in the page, links switch without a reload.
+ * The pages, each at its own address: the solo table at the root, friends
+ * at /friends/, the guided round at /learn/ and the primer's lessons under
+ * it (/learn/tiles/ and so on). The build writes an index.html into each
+ * folder, so the addresses work on GitHub Pages without a server; in the
+ * page, links switch without a reload.
  */
 import { createContext, useCallback, useEffect, useState } from 'react'
 
-export type Page = 'home' | 'friends' | 'learn'
+export const LESSONS = ['tiles', 'sets', 'round', 'scoring', 'glossary'] as const
+export type LessonId = (typeof LESSONS)[number]
+export type Page = 'home' | 'friends' | 'learn' | `learn/${LessonId}`
+export const PAGES: readonly Page[] = ['home', 'friends', 'learn', ...LESSONS.map((l) => `learn/${l}` as const)]
 
 const BASE = import.meta.env.BASE_URL
 
 export function pageOf(pathname: string): Page {
   const rel = pathname.startsWith(BASE) ? pathname.slice(BASE.length) : pathname.replace(/^\/+/, '')
   const name = rel.replace(/\/index\.html$/, '').replace(/\/+$/, '')
-  return name === 'friends' || name === 'learn' ? name : 'home'
+  return (PAGES as readonly string[]).includes(name) ? (name as Page) : 'home'
+}
+
+/** The lesson a page shows, if it is one of the primer's. */
+export function lessonOf(page: Page): LessonId | null {
+  return page.startsWith('learn/') ? (page.slice('learn/'.length) as LessonId) : null
 }
 
 export function hrefOf(page: Page, search = ''): string {

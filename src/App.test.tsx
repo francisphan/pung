@@ -51,6 +51,16 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Deal' })).toBeInTheDocument()
   })
 
+  it('reaches a primer lesson from the learn page', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+    await user.click(screen.getByRole('link', { name: 'Learn to play' }))
+    await user.click(screen.getByRole('link', { name: /^The tiles/ }))
+    expect(window.location.pathname).toMatch(/\/learn\/tiles\/$/)
+    expect(screen.getByRole('heading', { name: 'The tiles' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Learn to play' })).toHaveAttribute('aria-current', 'page')
+  })
+
   it('opens a join link on the friends page with the code filled in', () => {
     // jsdom has no WebRTC; pretend it does so the form shows.
     const w = window as unknown as { RTCPeerConnection?: unknown }

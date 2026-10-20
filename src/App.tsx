@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { gameOverNote, guide, resultNote } from './coach'
 import Friends from './components/Friends'
 import GameOver from './components/GameOver'
@@ -9,6 +9,8 @@ import Lobby from './components/Lobby'
 import Result from './components/Result'
 import RoomLobby from './components/RoomLobby'
 import Table from './components/Table'
+import Primer from './primer/Primer'
+import { LESSON_INFO } from './primer/catalog'
 import { useGame, useSettings } from './hooks/useGame'
 import { useRoom } from './hooks/useRoom'
 import { useSounds } from './hooks/useSounds'
@@ -17,7 +19,7 @@ import { SOLO, WIND_NAME, type Seating } from './names'
 import { WINDS } from './engine/tiles'
 import { cleanCode, type RoomInfo } from './net/protocol'
 import { serverUrl } from './net/serverUrl'
-import { NavContext, usePage } from './router'
+import { NavContext, lessonOf, usePage } from './router'
 import { SeatingContext } from './seat'
 
 function seatingOf(room: RoomInfo): Seating {
@@ -43,6 +45,12 @@ export default function App() {
 
   const room = online.room
   const inRoom = room !== null || online.busy
+  const lessonPage = lessonOf(page)
+  // The tab names the page.
+  useEffect(() => {
+    const name = lessonPage ? LESSON_INFO[lessonPage].label : page === 'friends' ? 'With friends' : page === 'learn' ? 'Learn to play' : null
+    document.title = name ? `${name} · Pung` : 'Pung'
+  }, [page, lessonPage])
   const guided = !!solo.state && solo.tutorial
   const soloPlaying = !!solo.state && !solo.tutorial && !lobby
   // The table this page shows, if any: the room on the friends page, the guided round on learn, a solo game at home.
@@ -187,6 +195,8 @@ export default function App() {
         </SeatingContext.Provider>
       )
     }
+  } else if (lessonPage) {
+    main = <Primer lesson={lessonPage} />
   } else if (page === 'learn') {
     main = guided && solo.state ? soloTable(solo.state) : <Learn inProgress={!!solo.state && !solo.tutorial} onStart={solo.startTutorial} />
   } else if (soloPlaying && solo.state) {
@@ -268,7 +278,7 @@ export default function App() {
             <Link page="friends" current={page === 'friends'} className="page-link">
               With friends
             </Link>
-            <Link page="learn" current={page === 'learn'} className="page-link">
+            <Link page="learn" current={page === 'learn' || lessonPage !== null} className="page-link">
               Learn to play
             </Link>
           </nav>

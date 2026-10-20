@@ -4,7 +4,7 @@ Hong Kong mahjong you can actually play: against three opponents, or with friend
 
 Live: https://francisphan.github.io/pung/
 
-Pung is the sibling of [Sparrow](https://francisphan.github.io/sparrow/), which teaches the game from the first tile. Sparrow explains; Pung deals.
+Pung also carries the primer that used to live on its own as Sparrow: five short lessons, from the tiles to the scoring, each with something to try, under *Learn to play*.
 
 ## The game
 
@@ -16,8 +16,9 @@ Pung is the sibling of [Sparrow](https://francisphan.github.io/sparrow/), which 
 - **A table log.** Every deal, flower, discard, claim and win, with the tile shown, from your point of view: "Bo discarded Five of characters", "Ling pung on Bo's White dragon", "You win by self-draw". It sits beside the table on a wide screen and under your rack on a narrow one, scrolls back through earlier hands, and can be hidden.
 - **The tiles you know.** Faces are the classic designs found on most sets, by Cangjie6 on Wikimedia Commons (CC BY-SA 4.0, see `CREDITS.md`), served as one optimised SVG sprite.
 - **Soft sounds from the table.** A low wooden knock when a tile is set down, a lighter one when you pick one up, two or three for a claim, a muffled rummage as each hand is dealt, and a run of pieces when a winning hand is laid out. They are cut from CC0 recordings of chess pieces on a board (see `CREDITS.md`), kept quiet and low, and served from this site as MP3 files totalling under 200 KB, played through audio elements so they work on an iPad even with the ringer muted. "Sound off" in the masthead mutes them and the choice is remembered.
-- **Three pages.** The front page (`/pung/`) is the solo game; *With friends* (`/pung/friends/`) hosts and joins tables; *Learn to play* (`/pung/learn/`) holds the guided round. Each is a real address (the build writes an `index.html` into each folder), so links, bookmarks and the back button work, and the page switches in place on a tap.
+- **Three pages.** The front page (`/pung/`) is the solo game; *With friends* (`/pung/friends/`) hosts and joins tables; *Learn to play* (`/pung/learn/`) holds the guided round and the primer's five lessons (`/pung/learn/tiles/`, `sets`, `round`, `scoring`, `glossary`). Each is a real address (the build writes an `index.html` into each folder), so links, bookmarks and the back button work, and the page switches in place on a tap.
 - **A guided round for a first game.** *Play a guided round* on the learn page deals a fixed East round at a 1-faan table in which the coach picks every move: one tile on your rack glows, the line above it says why that tile, and in a claim window only the right button works. Short lessons appear the first time something new happens (the deal, a hand taking shape, a claim, a win, the second hand), with the rule of thumb that good-looking hands score more running through them, each result card explains how the hand was counted, and the round ends with a word on what a full game adds. The chosen deal starts you with two dragon pairs, which the lesson points at, so you pung them both and win the first hand on 3 faan; later hands bring a chow, two kongs, two opponents' wins, and a round you finish in front.
+- **The primer.** The tiles, with corner hints and a quiz; chow, pung, kong and the pair, with wait puzzles; a round step by step on a drawn table; scoring basics with six hands to count and the rare hands; and a glossary with Cantonese names. Each lesson is its own address, the explanation reads before the exercise, and every term in the text opens a short definition. It lives in `src/primer/` with its own scoped stylesheet.
 - **Pick up where you left off.** A solo game is saved in the browser after every move. An online table is remembered too: reload the page and you are back in your seat, and a host's reload brings the whole table back.
 
 ## Controls
