@@ -30,10 +30,27 @@
 html {
   background: var(--felt);
   color: var(--bone);
+  color-scheme: dark;
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.45;
   -webkit-text-size-adjust: 100%;
+  scrollbar-color: var(--bone-dim) var(--felt-deep);
+}
+
+/* The parts the browser draws carry the table's colours too. */
+::selection {
+  background: var(--bamboo);
+  color: var(--ink);
+}
+
+.card ::selection {
+  background: var(--lacquer);
+  color: var(--bone);
+}
+
+.card {
+  scrollbar-color: var(--bone-shade) var(--bone);
 }
 
 body {
@@ -950,6 +967,12 @@ a {
   margin-bottom: 16px;
 }
 
+.lobby-title,
+.card-title,
+.door-title {
+  text-wrap: balance;
+}
+
 .lobby-title {
   margin: 0 0 10px;
   font-family: var(--font-display);
@@ -1340,14 +1363,22 @@ a {
       'rack rack rack log';
   }
 
+  /* The column takes the table's height and scrolls inside, instead of growing the page as the log fills. */
+  .table-with-log .area-log {
+    position: relative;
+    min-height: 0;
+  }
+
   .table-with-log .log {
-    height: 100%;
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
   }
 
   .table-with-log .log-list {
     flex: 1;
+    min-height: 0;
     max-height: none;
   }
 }
