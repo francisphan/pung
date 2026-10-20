@@ -73,9 +73,10 @@ a {
 
 .masthead {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
+  gap: 4px 16px;
   padding: 10px 0 6px;
   border-bottom: 3px solid var(--lacquer);
 }
@@ -100,8 +101,22 @@ a {
 
 .masthead-nav {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 18px;
   align-items: baseline;
+  min-width: 0;
+}
+
+@media (max-width: 479px) {
+  .masthead-nav {
+    gap: 4px 12px;
+  }
+
+  /* The coach tag on the rack already says it. */
+  .masthead-note {
+    display: none;
+  }
 }
 
 .masthead-link,
@@ -121,6 +136,13 @@ a {
 .masthead-link:hover,
 .link-btn:hover {
   color: var(--bone);
+}
+
+/* The narrowest phones: fourteen tiles still fit across without the page scrolling sideways. */
+@media (max-width: 359px) {
+  :root {
+    --tile-hand: clamp(18px, calc((100vw - 60px) / 14.4), 56px);
+  }
 }
 
 /* The three pages */

@@ -217,7 +217,7 @@ export default function App() {
                 Table {room.code}
               </Link>
             )}
-            {guided && page === 'learn' && <span className="masthead-code">Guided round</span>}
+            {guided && page === 'learn' && <span className="masthead-code masthead-note">Guided round</span>}
             <button
               type="button"
               className="link-btn"
@@ -244,7 +244,7 @@ export default function App() {
                   if (window.confirm('End the guided round? You can start another any time.')) solo.quit()
                 }}
               >
-                End the round
+                End round
               </button>
             )}
           </nav>
