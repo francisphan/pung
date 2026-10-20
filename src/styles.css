@@ -1121,9 +1121,116 @@ a {
     transition: none;
   }
 
-  .river-latest {
+  .river-latest,
+  .hand-tile-lit .tile-svg,
+  .act-lit {
     animation: none;
   }
+}
+
+/* The end of a hand: every rack face up, and a way to step out from the card to see it */
+
+.seat-revealed .seat-rack .tile-svg,
+.seat-revealed.seat-side .seat-rack .tile-svg,
+.seat-revealed.seat-top .seat-rack .tile-svg {
+  width: auto;
+  height: auto;
+}
+
+.seat-reveal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  line-height: 0;
+}
+
+.peek {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100% - 24px);
+  padding: 8px 10px 8px 16px;
+  border-radius: 999px;
+  border-bottom: 4px solid var(--bone-shade);
+  background: var(--bone);
+  color: var(--ink);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* The guided round: the coach's pick glows, and its words carry a tag */
+
+.hand .hand-tile-lit {
+  transform: translateY(-8px);
+}
+
+.hand .hand-tile-lit.hand-tile-picked {
+  transform: translateY(-14px);
+}
+
+.hand-tile-lit .tile-svg {
+  border-radius: 12% / 10%;
+  box-shadow: 0 0 0 3px var(--bamboo), 0 0 10px 2px rgba(201, 164, 92, 0.6);
+  animation: glow 1.1s ease-in-out infinite alternate;
+}
+
+.hand-tile-picked.hand-tile-lit .tile-svg {
+  box-shadow: 0 0 0 3px var(--lacquer), 0 0 10px 2px rgba(201, 164, 92, 0.6);
+}
+
+.act-lit {
+  box-shadow: 0 0 0 3px var(--bamboo), 0 0 10px 2px rgba(201, 164, 92, 0.6);
+  animation: glow 1.1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 0 3px var(--bamboo), 0 0 4px 0 rgba(201, 164, 92, 0.4);
+  }
+  to {
+    box-shadow: 0 0 0 3px var(--bamboo), 0 0 16px 4px rgba(201, 164, 92, 0.8);
+  }
+}
+
+.coach-tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bamboo);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+
+.status-coach {
+  text-align: left;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.card-note {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(201, 164, 92, 0.22);
+  color: var(--ink);
+}
+
+.card-lesson .card-title {
+  margin-top: 8px;
+}
+
+.lesson-text {
+  margin: 12px 0 0;
+  font-size: 17px;
 }
 
 /* Wide screens: the log stands beside the table */

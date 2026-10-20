@@ -13,10 +13,12 @@ interface Props {
   selected: string | null
   onSelect: (key: string | null) => void
   onDiscard: (tile: StandardId) => void
+  /** In a guided round: the one tile that may be thrown now, or none when the move is a button. */
+  guide?: { tile: StandardId | null } | null
 }
 
 /** Your tiles, drawn tile apart on the right. Tap to pick, tap again to throw. */
-export default function Rack({ state, selected, onSelect, onDiscard }: Props) {
+export default function Rack({ state, selected, onSelect, onDiscard, guide = null }: Props) {
   const { me, names } = useSeating()
   const p = state.players[me]
   const myTurn = state.phase === 'discard' && state.current === me
@@ -26,6 +28,15 @@ export default function Rack({ state, selected, onSelect, onDiscard }: Props) {
   const row = sortTiles(rest)
   const wind = seatWind(state, me)
   const ref = useRef<HTMLDivElement>(null)
+  // The glowing tile: the drawn one if it is the pick, else its first copy in the row.
+  let lit: string | null = null
+  if (guide?.tile) {
+    if (drawn === guide.tile) lit = 'drawn'
+    else {
+      const i = row.indexOf(guide.tile)
+      if (i >= 0) lit = `${i}:${guide.tile}`
+    }
+  }
 
   function tap(key: string, tile: StandardId) {
     if (!myTurn) return
@@ -54,11 +65,11 @@ export default function Rack({ state, selected, onSelect, onDiscard }: Props) {
     <button
       key={key}
       type="button"
-      className={`hand-tile${selected === key ? ' hand-tile-picked' : ''}`}
+      className={`hand-tile${selected === key ? ' hand-tile-picked' : ''}${lit === key ? ' hand-tile-lit' : ''}`}
       style={{ ['--w' as string]: 'var(--tile-hand)' }}
       aria-pressed={selected === key}
-      aria-label={`${tileName(tile)}${selected === key ? ', picked. Press again to discard' : ''}`}
-      disabled={!myTurn}
+      aria-label={`${tileName(tile)}${lit === key ? ", the coach's pick" : ''}${selected === key ? ', picked. Press again to discard' : ''}`}
+      disabled={!myTurn || (guide !== null && lit !== key)}
       onClick={() => tap(key, tile)}
     >
       <Tile id={tile} decorative />

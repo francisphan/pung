@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { Guidance } from '../coach'
 import type { Decision, GameState, Seat } from '../engine/game'
 import { sortTiles, type StandardId } from '../engine/tiles'
 import type { LogHistory } from '../log'
@@ -19,9 +20,11 @@ interface Props {
   onSelfWin: () => void
   onKong: (tile: StandardId) => void
   onDecide: (d: Decision) => void
+  /** In a guided round: the coach's move for this moment. */
+  guide?: Guidance | null
 }
 
-export default function Table({ state, log, logOpen, onToggleLog, onDiscard, onSelfWin, onKong, onDecide }: Props) {
+export default function Table({ state, log, logOpen, onToggleLog, onDiscard, onSelfWin, onKong, onDecide, guide = null }: Props) {
   const { me } = useSeating()
   // Play runs counter-clockwise, so the next player is on your right.
   const right = ((me + 1) % 4) as Seat
@@ -84,8 +87,15 @@ export default function Table({ state, log, logOpen, onToggleLog, onDiscard, onS
           onSelfWin={onSelfWin}
           onKong={onKong}
           onDecide={onDecide}
+          guide={guide}
         />
-        <Rack state={state} selected={selected} onSelect={setSelected} onDiscard={onDiscard} />
+        <Rack
+          state={state}
+          selected={selected}
+          onSelect={setSelected}
+          onDiscard={onDiscard}
+          guide={guide ? { tile: guide.action.type === 'discard' ? guide.action.tile : null } : null}
+        />
       </div>
       <div className="area-log">
         <Log log={log} open={logOpen} onToggle={onToggleLog} />

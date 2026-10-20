@@ -3,7 +3,8 @@
  * UI and the per-seat helpers (canSelfWin, kongOptions) work on it unchanged,
  * but with every tile the seat cannot see replaced by a placeholder, the seed
  * blanked, and everyone else's claim options and decisions left out. This is
- * what the table server sends to each player.
+ * what the table server sends to each player. Once a hand is over every
+ * rack is laid face up, as at a real table, so nothing is hidden then.
  */
 import { SEATS, type ClaimWindow, type GameState, type Seat } from './game'
 import type { StandardId, TileId } from './tiles'
@@ -28,11 +29,12 @@ function claimFor(w: ClaimWindow, seat: Seat): ClaimWindow {
 }
 
 export function viewFor(s: GameState, seat: Seat): GameState {
+  const over = s.phase === 'handEnd' || s.phase === 'gameEnd'
   return {
     ...s,
     seed: 0,
     wall: hidden(s.wall.length),
-    players: s.players.map((p, i) => (i === seat ? p : { ...p, concealed: hidden(p.concealed.length) })),
+    players: s.players.map((p, i) => (i === seat || over ? p : { ...p, concealed: hidden(p.concealed.length) })),
     drawn: s.phase === 'discard' && s.current === seat ? s.drawn : null,
     claim: s.claim ? claimFor(s.claim, seat) : null,
   }

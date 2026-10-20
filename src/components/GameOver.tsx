@@ -9,9 +9,11 @@ interface Props {
   canRestart?: boolean
   waitingFor?: string | null
   onLeave?: () => void
+  /** In a guided round: the coach's closing word. */
+  note?: string
 }
 
-export default function GameOver({ state, onNewGame, canRestart = true, waitingFor = null, onLeave }: Props) {
+export default function GameOver({ state, onNewGame, canRestart = true, waitingFor = null, onLeave, note }: Props) {
   const seating = useSeating()
   const order = ([0, 1, 2, 3] as Seat[]).sort((a, b) => state.players[b].score - state.players[a].score)
   const you = order.indexOf(seating.me)
@@ -36,6 +38,12 @@ export default function GameOver({ state, onNewGame, canRestart = true, waitingF
             ))}
           </tbody>
         </table>
+        {note && (
+          <p className="card-note">
+            <span className="coach-tag">Coach</span>
+            {note}
+          </p>
+        )}
         <div className="card-actions">
           {onLeave && (
             <button type="button" className="act" onClick={onLeave}>
@@ -44,7 +52,7 @@ export default function GameOver({ state, onNewGame, canRestart = true, waitingF
           )}
           {canRestart ? (
             <button type="button" className="act act-primary" onClick={onNewGame} autoFocus>
-              {onLeave ? 'Play again' : 'New game'}
+              {onLeave ? 'Play again' : note ? 'Back to the lobby' : 'New game'}
             </button>
           ) : (
             <p className="card-wait" role="status">

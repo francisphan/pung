@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { dealerOf, type GameState, type Seat, type WinResult } from '../engine/game'
 import { PATTERN_BY_ID } from '../engine/scoring'
 import { tileName } from '../engine/tiles'
@@ -13,6 +14,8 @@ interface Props {
   canAdvance?: boolean
   /** Who everyone else is waiting for. */
   waitingFor?: string | null
+  /** In a guided round: the coach's reading of the result. */
+  note?: string
 }
 
 function WinningHand({ r }: { r: WinResult }) {
@@ -49,10 +52,31 @@ function WinningHand({ r }: { r: WinResult }) {
 }
 
 /** The card shown when a hand ends. */
-export default function Result({ state, onNext, canAdvance = true, waitingFor = null }: Props) {
+export default function Result({ state, onNext, canAdvance = true, waitingFor = null, note }: Props) {
   const seating = useSeating()
+  // Step away from the card to look at the table, where every hand now lies face up.
+  const [peek, setPeek] = useState(false)
+  const look = () => {
+    setPeek(true)
+    // The table, not the log, is what there is to see.
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch {
+      /* not every browser takes the options form */
+    }
+  }
   const r = state.result
   if (!r) return null
+  if (peek) {
+    return (
+      <div className="peek" role="status">
+        <span>Every hand is face up.</span>
+        <button type="button" className="act act-small" onClick={() => setPeek(false)} autoFocus>
+          Back to the result
+        </button>
+      </div>
+    )
+  }
   const dealer = dealerOf(state)
   const dealerStays = r.kind === 'draw' || r.winner === dealer
   const lastHand = !dealerStays && state.dealerIndex + 1 >= state.rules.rounds * 4
@@ -112,6 +136,12 @@ export default function Result({ state, onNext, canAdvance = true, waitingFor = 
             </div>
           </>
         )}
+        {note && (
+          <p className="card-note">
+            <span className="coach-tag">Coach</span>
+            {note}
+          </p>
+        )}
         <table className="standings">
           <tbody>
             {state.players.map((p, i) => (
@@ -124,6 +154,9 @@ export default function Result({ state, onNext, canAdvance = true, waitingFor = 
           </tbody>
         </table>
         <div className="card-actions">
+          <button type="button" className="act" onClick={look}>
+            Look at the table
+          </button>
           {canAdvance ? (
             <button type="button" className="act act-primary" onClick={onNext} autoFocus>
               {nextLabel}

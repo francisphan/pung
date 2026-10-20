@@ -22,6 +22,25 @@ describe('viewFor', () => {
     }
   })
 
+  it('lays every rack face up once the hand is over', () => {
+    let s = newGame({ minimumFaan: 0, rounds: 1 }, 5)
+    let guard = 0
+    while (s.phase !== 'handEnd' && guard++ < 2000) {
+      if (s.phase === 'discard') s = reduce(s, aiTurn(s, s.current))
+      else if (s.phase === 'claim') {
+        const decisions: Record<number, { kind: 'pass' }> = {}
+        for (const o of SEATS) if (s.claim!.options[o]) decisions[o] = { kind: 'pass' }
+        s = reduce(s, { type: 'decide', decisions })
+      } else break
+    }
+    expect(s.phase).toBe('handEnd')
+    for (const seat of SEATS) {
+      const v = viewFor(s, seat)
+      for (const o of SEATS) expect(v.players[o].concealed).toEqual(s.players[o].concealed)
+      expect(v.wall.every(isHidden)).toBe(true)
+    }
+  })
+
   it('keeps the drawn tile only for the player on turn', () => {
     const s = newGame({ minimumFaan: 0, rounds: 1 }, 5)
     expect(viewFor(s, 0).drawn).toBe(s.drawn)

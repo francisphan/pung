@@ -13,6 +13,7 @@ interface Props {
   /** A code from a shared link, to fill in. */
   joinCode: string | null
   onStart: (rules: Rules) => void
+  onTutorial: () => void
   onHost: (rules: Rules) => void
   onJoin: (code: string) => void
   onSettings: (patch: Partial<Settings>) => void
@@ -20,7 +21,7 @@ interface Props {
 }
 
 /** Before the first deal: pick the house rules and sit down, alone or with friends. */
-export default function Lobby({ settings, inProgress, online, joinCode, onStart, onHost, onJoin, onSettings, onBack }: Props) {
+export default function Lobby({ settings, inProgress, online, joinCode, onStart, onTutorial, onHost, onJoin, onSettings, onBack }: Props) {
   const [rules, setRules] = useState<Rules>(settings.rules)
   const [code, setCode] = useState(joinCode ?? '')
   const validCode = cleanCode(code)
@@ -60,6 +61,21 @@ export default function Lobby({ settings, inProgress, online, joinCode, onStart,
           </button>
         )}
       </div>
+
+      <section className="friends learn" aria-labelledby="learn-title">
+        <h3 id="learn-title" className="friends-title">
+          New to mahjong?
+        </h3>
+        <p className="friends-copy">
+          Play a guided round: one round of the game against the bots, where the coach picks every move for you and
+          says why. By the end you will have drawn, thrown, claimed and won.
+        </p>
+        <div className="friends-row">
+          <button type="button" className="act" onClick={onTutorial}>
+            Play a guided round
+          </button>
+        </div>
+      </section>
 
       <section className="friends" aria-labelledby="friends-title">
         <h3 id="friends-title" className="friends-title">
@@ -131,8 +147,8 @@ export default function Lobby({ settings, inProgress, online, joinCode, onStart,
       </section>
 
       <p className="lobby-foot">
-        New to the game? <a href="https://francisphan.github.io/sparrow/">Sparrow</a> teaches the tiles, the sets and
-        the scoring from scratch.
+        Prefer to read first? <a href="https://francisphan.github.io/sparrow/">Sparrow</a> teaches the tiles, the sets
+        and the scoring from scratch.
       </p>
       <p className="lobby-credit">
         Classic tile faces by{' '}

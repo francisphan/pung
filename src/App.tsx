@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
+import { gameOverNote, guide, resultNote } from './coach'
 import GameOver from './components/GameOver'
+import Lesson from './components/Lesson'
 import Lobby from './components/Lobby'
 import Result from './components/Result'
 import RoomLobby from './components/RoomLobby'
@@ -37,6 +39,9 @@ export default function App() {
   const seating = room ? seatingOf(room) : SOLO
   const state = inRoom ? (room && room.status !== 'lobby' ? online.view : null) : solo.state
   const showLobby = !inRoom && (lobby || !solo.state)
+  // A guided round: the coach's move for this moment, and the lesson due, if any.
+  const coached = !inRoom && solo.tutorial && solo.state ? guide(solo.state, SOLO.me, SOLO) : null
+  const lesson = !inRoom && solo.state ? solo.lesson : null
   useSounds(state, settings.sound, seating.me)
   const toggleLog = () => setSettings({ log: !settings.log })
   // A host's browser is the table: leaving ends it for everyone else there.
@@ -135,6 +140,10 @@ export default function App() {
           solo.start(rules)
           setLobby(false)
         }}
+        onTutorial={() => {
+          solo.startTutorial()
+          setLobby(false)
+        }}
         onHost={(rules) => {
           setSettings({ rules })
           online.host(rules)
@@ -156,11 +165,16 @@ export default function App() {
           onSelfWin={solo.selfWin}
           onKong={solo.kong}
           onDecide={solo.decide}
+          guide={coached}
         />
-        {solo.state.phase === 'handEnd' && <Result state={solo.state} onNext={solo.nextHand} />}
+        {lesson && <Lesson title={lesson.title} body={lesson.body(solo.state, SOLO.me, SOLO)} onDone={() => solo.finishLesson(lesson.id)} />}
+        {solo.state.phase === 'handEnd' && (
+          <Result state={solo.state} onNext={solo.nextHand} note={solo.tutorial ? resultNote(solo.state, SOLO.me, SOLO) : undefined} />
+        )}
         {solo.state.phase === 'gameEnd' && (
           <GameOver
             state={solo.state}
+            note={solo.tutorial ? gameOverNote() : undefined}
             onNewGame={() => {
               solo.quit()
               setLobby(true)
@@ -183,6 +197,7 @@ export default function App() {
           </h1>
           <nav className="masthead-nav">
             {room && <span className="masthead-code">Table {room.code}</span>}
+            {!inRoom && solo.tutorial && !showLobby && <span className="masthead-code">Guided round</span>}
             <button
               type="button"
               className="link-btn"
