@@ -68,7 +68,7 @@ export default function Rack({ state, selected, onSelect, onDiscard, guide = nul
       className={`hand-tile${selected === key ? ' hand-tile-picked' : ''}${lit === key ? ' hand-tile-lit' : ''}`}
       style={{ ['--w' as string]: 'var(--tile-hand)' }}
       aria-pressed={selected === key}
-      aria-label={`${tileName(tile)}${lit === key ? ", the coach's pick" : ''}${selected === key ? ', picked. Press again to discard' : ''}`}
+      aria-label={`${tileName(tile)}${lit === key ? ", the coach’s pick" : ''}${selected === key ? ', picked. Press again to discard' : ''}`}
       disabled={!myTurn || (guide !== null && lit !== key)}
       onClick={() => tap(key, tile)}
     >

@@ -203,6 +203,9 @@ export default function App() {
   return (
     <NavContext.Provider value={go}>
       <div className="app">
+        <a className="skip-link" href="#main">
+          Skip to the table
+        </a>
         <header className="masthead">
           <h1 className="wordmark">
             Pung
@@ -263,7 +266,9 @@ export default function App() {
           </nav>
         )}
 
-        <main>{main}</main>
+        <main id="main" tabIndex={-1}>
+          {main}
+        </main>
       </div>
     </NavContext.Provider>
   )

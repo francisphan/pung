@@ -100,7 +100,7 @@ export const PATTERNS: readonly Pattern[] = [
   { id: 'nineGates', name: 'Nine gates', chinese: '九蓮寶燈', faan: LIMIT_FAAN, limit: true, description: '1112345678999 of one suit, concealed, plus any tile of that suit.' },
   { id: 'fourKongs', name: 'Four kongs', chinese: '十八羅漢', faan: LIMIT_FAAN, limit: true, description: 'Four kongs and a pair.' },
   { id: 'heavenly', name: 'Heavenly hand', chinese: '天糊', faan: LIMIT_FAAN, limit: true, description: 'The dealer wins on the deal.' },
-  { id: 'earthly', name: 'Earthly hand', chinese: '地糊', faan: LIMIT_FAAN, limit: true, description: 'Won on the dealer\'s first discard.' },
+  { id: 'earthly', name: 'Earthly hand', chinese: '地糊', faan: LIMIT_FAAN, limit: true, description: 'Won on the dealer’s first discard.' },
 ]
 
 export const PATTERN_BY_ID: Record<PatternId, Pattern> = Object.fromEntries(

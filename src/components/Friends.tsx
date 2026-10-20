@@ -26,8 +26,8 @@ export default function Friends({ settings, online, joinCode, onHost, onJoin, on
     <div className="lobby">
       <h2 className="lobby-title">Play with friends</h2>
       <p className="lobby-copy">
-        Host a table and share its four-letter code, or join a friend's. Everyone picks a seat; any seat left empty
-        gets one of the bots when the host deals. The host's browser runs the table, so the host keeps their page
+        Host a table and share its four-letter code, or join a friend’s. Everyone picks a seat; any seat left empty
+        gets one of the bots when the host deals. The host’s browser runs the table, so the host keeps their page
         open; everyone else only needs the code.
       </p>
       {online.available ? (

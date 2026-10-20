@@ -30,7 +30,7 @@ export function nameOf(seating: Seating, seat: Seat, mid = false): string {
 
 /** "Your" or "Mei's". */
 export function possessive(seating: Seating, seat: Seat, mid = false): string {
-  return isMe(seating, seat) ? (mid ? 'your' : 'Your') : `${seating.names[seat]}'s`
+  return isMe(seating, seat) ? (mid ? 'your' : 'Your') : `${seating.names[seat]}’s`
 }
 
 /** Verb agreement: "You deal", "Mei deals". */

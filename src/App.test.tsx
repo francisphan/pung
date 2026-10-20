@@ -81,7 +81,7 @@ describe('App', () => {
     const hand = screen.getByRole('group', { name: 'Your tiles' })
     const live = within(hand).getAllByRole('button').filter((b) => !(b as HTMLButtonElement).disabled)
     expect(live).toHaveLength(1)
-    expect(live[0]).toHaveAccessibleName(/the coach's pick/)
+    expect(live[0]).toHaveAccessibleName(/the coach’s pick/)
     await user.click(live[0])
     await user.click(live[0])
     expect(within(screen.getByRole('group', { name: 'Your tiles' })).getAllByRole('button')).toHaveLength(13)
