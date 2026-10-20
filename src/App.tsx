@@ -214,10 +214,12 @@ export default function App() {
         </a>
         <header className="masthead" inert={modal}>
           <h1 className="wordmark">
-            Pung
-            <span className="wordmark-cjk" lang="zh-Hant" aria-hidden="true">
-              碰
-            </span>
+            <Link page="home" className="wordmark-link">
+              Pung
+              <span className="wordmark-cjk" lang="zh-Hant" aria-hidden="true">
+                碰
+              </span>
+            </Link>
           </h1>
           <nav className="masthead-nav" aria-label="Table">
             {room && page === 'friends' && (
