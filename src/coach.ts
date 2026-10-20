@@ -21,17 +21,22 @@ import {
 } from './engine/game'
 import { PATTERN_BY_ID, type Score } from './engine/scoring'
 import { acceptance, shanten } from './engine/shanten'
-import { TILE_BY_ID, isHonor, tileName, windTile, type StandardId } from './engine/tiles'
+import { SUITS, TILE_BY_ID, isHonor, tileName, windTile, type StandardId, type Suit } from './engine/tiles'
 import { WIND_NAME, conjugate, nameOf, possessive, type Seating } from './names'
 
-/** One East round: everyone deals once. Long enough to see every kind of turn, short enough to finish. */
-export const TUTORIAL_RULES: Rules = { minimumFaan: 3, rounds: 1 }
+/**
+ * One East round at a one-faan table: everyone deals once, and a hand needs
+ * only one scoring pattern to win, so the coach claims freely and the wins
+ * come while the lessons are fresh.
+ */
+export const TUTORIAL_RULES: Rules = { minimumFaan: 1, rounds: 1 }
 /**
  * The deal for every guided round. Chosen so that, following the coach, you
- * claim a set and win the first hand, see an opponent win, and finish the
- * round in a handful of hands. `tutorial.test.ts` checks that stays true.
+ * start with two dragon pairs, pung them both and win the first hand, chow
+ * and kong in later hands, see opponents win, and finish the round in five
+ * hands in front. `tutorial.test.ts` checks that stays true.
  */
-export const TUTORIAL_SEED = 440
+export const TUTORIAL_SEED = 231
 
 export interface Guidance {
   /** The move to make. */
@@ -46,8 +51,36 @@ export interface Guidance {
 
 /** A tile name for the middle of a sentence. */
 const lower = (id: StandardId) => tileName(id).toLowerCase()
-/** "an east wind", "a red dragon". */
-const a = (name: string) => `${/^[aeiou]/.test(name) ? 'an' : 'a'} ${name}`
+
+export const SUIT_NAME: Record<Suit, string> = { characters: 'characters', dots: 'dots', bamboo: 'bamboo' }
+
+/** How a hand looks: the suit it leans on, and the value tiles it holds two of. */
+export interface Shape {
+  /** The suit with the most tiles, and how many of the hand's tiles are in it. */
+  suit: Suit
+  count: number
+  total: number
+  /** Dragons, the seat wind and the round wind held as a pair, each a pung away from a faan. */
+  valuePairs: StandardId[]
+}
+
+export function shapeOf(s: GameState, me: Seat): Shape {
+  const p = s.players[me]
+  const all = [...p.concealed, ...p.melds.flatMap((m) => m.tiles)]
+  const bySuit: Record<Suit, number> = { characters: 0, dots: 0, bamboo: 0 }
+  const counts = new Map<StandardId, number>()
+  for (const t of all) {
+    const tile = TILE_BY_ID[t]
+    if (tile.kind === 'suit') bySuit[tile.suit]++
+    counts.set(t, (counts.get(t) ?? 0) + 1)
+  }
+  const suit = SUITS.reduce((a, b) => (bySuit[b] > bySuit[a] ? b : a))
+  const valued = new Set<StandardId>(['RD', 'GD', 'WD', windTile(seatWind(s, me)), windTile(prevailingOf(s))])
+  const valuePairs = [...valued].filter((t) => counts.get(t) === 2 && p.concealed.filter((c) => c === t).length === 2)
+  return { suit, count: bySuit[suit], total: all.length, valuePairs }
+}
+/** "an east wind", "a red dragon", "a one of bamboo". */
+const a = (name: string) => `${/^[aeiou]/.test(name) && !name.startsWith('one') ? 'an' : 'a'} ${name}`
 
 /** What a pung of this tile is worth, if anything, for the lesson in it. */
 function worth(s: GameState, me: Seat, tile: StandardId): string {
@@ -81,6 +114,8 @@ function whyDiscard(s: GameState, me: Seat, tile: StandardId): string {
         ? `A single ${name} is your wind, but one copy is a long way from a pung.`
         : `A single ${name} is a wind that scores nothing for you, and a lone honor can only ever become a pung.`
     } else why = `A single ${name} would need two more copies before it was worth anything.`
+  } else if (copies === 1 && t.kind === 'suit' && leans(s, me, t.suit)) {
+    why = `Your hand leans toward ${SUIT_NAME[shapeOf(s, me).suit]}, and a hand of one suit is worth faan, so the stray ${SUIT_NAME[t.suit]} tiles go first.`
   } else if (copies === 1 && t.kind === 'suit') {
     const near = p.concealed.some((o) => {
       const u = TILE_BY_ID[o]
@@ -105,6 +140,14 @@ function whyDiscard(s: GameState, me: Seat, tile: StandardId): string {
   else then = `After that you need ${a.shanten} good draws before you are waiting to win.`
   const how = s.handIndex === 0 && p.discards.length === 0 ? ' Tap it to pick it up, then tap it again to throw it.' : ''
   return `Throw the ${name}. ${why} ${then}${how}`
+}
+
+/** Whether the hand leans on one suit and this tile is from another, thinly held. */
+function leans(s: GameState, me: Seat, suit: Suit): boolean {
+  const shape = shapeOf(s, me)
+  if (shape.suit === suit || shape.count < 7) return false
+  const p = s.players[me]
+  return p.concealed.filter((o) => TILE_BY_ID[o].kind === 'suit' && (TILE_BY_ID[o] as { suit: Suit }).suit === suit).length <= 3
 }
 
 /** The best shanten reachable by taking this set and then discarding. */
@@ -238,11 +281,14 @@ export function resultNote(s: GameState, me: Seat, seating: Seating): string {
           : `${nameOf(seating, from)} threw the winning tile and pays in full; everyone else pays half.`
     }`
   }
-  const look = s.handIndex === 0 ? ' Look at the table shows what everyone else was collecting.' : ''
+  const look =
+    s.handIndex === 0
+      ? ' The faan come from how the hand looks, its value tiles and how it was won; that is the rule of thumb for every hand. Look at the table shows what everyone else was collecting.'
+      : ''
   return `${how} ${next}${look}`
 }
 
 /** The closing word of a guided round. */
 export function gameOverNote(): string {
-  return 'That was a whole round: everyone dealt once. A full game is four of them, with the round wind moving from East to North, and a pung of the round wind worth a faan. You know enough to play. Tap Deal in the lobby for a real game, with the coach gone and the choices yours.'
+  return 'That was a whole round: everyone dealt once. A full game is four of them, with the round wind moving from East to North. Keep the rule of thumb: good-looking hands score more, so lean on one suit, keep your pairs of dragons and of your own wind, and the faan follow. Start real games at the 1 faan setting, and move up to the usual 3 when wins come easily.'
 }

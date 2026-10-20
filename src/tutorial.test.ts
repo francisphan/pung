@@ -10,18 +10,23 @@ const ME = SOLO.me
 /**
  * The guided round is a fixed deal that everyone, you included, plays by the
  * coach's advice, so it always tells the same story. This pins that story:
- * change the AI or the seed and it must still teach the same things.
+ * change the AI, the rules or the seed and it must still teach the same things.
  */
 describe('the guided round', () => {
   let s: GameState = newGame(TUTORIAL_RULES, TUTORIAL_SEED)
   const lessons: string[] = []
   const claimsInFirstHand: string[] = []
+  const claims: string[] = []
   const results: string[] = []
   let kongs = 0
   let steps = 0
+  let shapeLesson: string[] = []
   while (s.phase !== 'gameEnd' && steps++ < 4000) {
     const lesson = openLesson(s, ME, lessons)
-    if (lesson) lessons.push(lesson.id)
+    if (lesson) {
+      lessons.push(lesson.id)
+      if (lesson.id === 'shape') shapeLesson = lesson.body(s, ME, SOLO)
+    }
     if (s.phase === 'discard') {
       if (s.current === ME) {
         const g = guide(s, ME, SOLO)!
@@ -35,7 +40,10 @@ describe('the guided round', () => {
         const opts = s.claim.options[seat]
         if (opts && !s.claim.decisions[seat]) decisions[seat] = aiClaim(s, seat, opts)
       }
-      if (decisions[ME] && s.handIndex === 0) claimsInFirstHand.push(decisions[ME].kind)
+      if (decisions[ME]) {
+        claims.push(decisions[ME].kind)
+        if (s.handIndex === 0) claimsInFirstHand.push(decisions[ME].kind)
+      }
       s = reduce(s, { type: 'decide', decisions })
     } else if (s.phase === 'handEnd') {
       const r = s.result!
@@ -45,13 +53,16 @@ describe('the guided round', () => {
   }
 
   it('teaches the lessons in order', () => {
-    expect(lessons).toEqual(['welcome', 'claim', 'win', 'newHand'])
+    expect(lessons).toEqual(['welcome', 'shape', 'claim', 'win', 'newHand'])
   })
-  it('has you pass, pung and chow in the first hand, then win it yourself', () => {
+  it('shows the rule of thumb on a hand with dragon pairs, then has you pung them and win', () => {
+    expect(shapeLesson.join(' ')).toMatch(/two of the red dragon and two of the green dragon/)
+    expect(claimsInFirstHand.filter((c) => c === 'pung')).toHaveLength(2)
     expect(claimsInFirstHand).toContain('pass')
-    expect(claimsInFirstHand).toContain('pung')
-    expect(claimsInFirstHand).toContain('chow')
-    expect(results[0]).toBe(`${ME}:self`)
+    expect(results[0]).toBe(`${ME}:discard`)
+  })
+  it('has you chow later in the round', () => {
+    expect(claims).toContain('chow')
   })
   it('lets an opponent win a hand and shows a kong', () => {
     expect(results.some((r) => r !== 'draw' && !r.startsWith(`${ME}:`))).toBe(true)

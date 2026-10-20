@@ -80,6 +80,6 @@ describe('notes', () => {
     const note = resultNote(end, ME, SOLO)
     expect(note).toMatch(/faan|wall ran out/)
     expect(note).toMatch(/deal passes|keep(s)? the deal|last hand/)
-    expect(gameOverNote()).toMatch(/Tap Deal/)
+    expect(gameOverNote()).toMatch(/good-looking hands score more/)
   })
 })

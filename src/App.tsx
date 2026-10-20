@@ -12,6 +12,7 @@ import Table from './components/Table'
 import { useGame, useSettings } from './hooks/useGame'
 import { useRoom } from './hooks/useRoom'
 import { useSounds } from './hooks/useSounds'
+import { metricsEnabled } from './metrics'
 import { SOLO, WIND_NAME, type Seating } from './names'
 import { WINDS } from './engine/tiles'
 import { cleanCode, type RoomInfo } from './net/protocol'
@@ -276,6 +277,25 @@ export default function App() {
         <main id="main" tabIndex={-1}>
           {main}
         </main>
+        {!atTable && (
+          <footer className="site-foot">
+            <p>
+              Classic tile faces by{' '}
+              <a href="https://commons.wikimedia.org/wiki/Category:SVG_mahjong_tiles">Cangjie6, Wikimedia Commons</a>,{' '}
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Sounds cut from CC0 recordings on{' '}
+              <a href="https://freesound.org/">Freesound</a>; see{' '}
+              <a href="https://github.com/francisphan/pung/blob/main/CREDITS.md">credits</a>.{' '}
+              <a href="https://github.com/francisphan/pung">Source on GitHub</a>.
+              {metricsEnabled() && (
+                <>
+                  {' '}
+                  Visits and games are counted anonymously by <a href="https://www.goatcounter.com/">GoatCounter</a>, without
+                  cookies.
+                </>
+              )}
+            </p>
+          </footer>
+        )}
       </div>
     </NavContext.Provider>
   )

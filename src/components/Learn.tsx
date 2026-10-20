@@ -16,6 +16,7 @@ export default function Learn({ inProgress, onStart }: Props) {
       </p>
       <ul className="learn-list">
         <li>What a hand is: four sets and a pair, and why some tiles are worth keeping.</li>
+        <li>The rule of thumb: good-looking hands score more. One suit, all pungs, dragons and your own wind.</li>
         <li>Taking a discard for a pung or a chow, and when to pass instead.</li>
         <li>Winning, and how the faan and the points are counted.</li>
         <li>The second hand: the deal moving round, and the seat winds with it.</li>

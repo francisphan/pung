@@ -1110,12 +1110,21 @@ main:focus {
   color: var(--bone-dim);
 }
 
-.lobby-credit {
+/* The credits sit at the foot of every page, under the content and out of its way. */
+.site-foot {
+  margin-top: auto;
+  padding: 28px 0 4px;
   color: var(--bone-dim);
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
-.lobby-credit a {
+.site-foot p {
+  max-width: 80ch;
+  margin: 0;
+}
+
+.site-foot a {
   color: var(--bone-dim);
 }
 

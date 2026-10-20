@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import type { Rules } from '../engine/game'
 import type { Settings } from '../hooks/useGame'
-import { metricsEnabled } from '../metrics'
 import { RuleChoices } from './Choice'
 import Link from './Link'
 import Tile from './Tile'
@@ -63,21 +62,6 @@ export default function Lobby({ settings, inProgress, onStart, onSettings, onBac
           <p className="door-copy">Play a guided round where the coach picks every move and says why.</p>
         </li>
       </ul>
-
-      <p className="lobby-credit">
-        Classic tile faces by{' '}
-        <a href="https://commons.wikimedia.org/wiki/Category:SVG_mahjong_tiles">Cangjie6, Wikimedia Commons</a>,{' '}
-        <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>. Sounds cut from CC0 recordings on{' '}
-        <a href="https://freesound.org/">Freesound</a>; see{' '}
-        <a href="https://github.com/francisphan/pung/blob/main/CREDITS.md">credits</a>.{' '}
-        <a href="https://github.com/francisphan/pung">Source on GitHub</a>.
-      </p>
-      {metricsEnabled() && (
-        <p className="lobby-credit">
-          Visits and games are counted anonymously by <a href="https://www.goatcounter.com/">GoatCounter</a>, without
-          cookies.
-        </p>
-      )}
     </div>
   )
 }

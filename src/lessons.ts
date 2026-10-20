@@ -3,9 +3,10 @@
  * the table reaches the moment it explains, and the opponents wait while
  * it is open.
  */
+import { SUIT_NAME, shapeOf } from './coach'
 import { canSelfWin, dealerOf, prevailingOf, seatWind, winOn, type GameState, type Seat } from './engine/game'
 import { PATTERN_BY_ID } from './engine/scoring'
-import { tileName } from './engine/tiles'
+import { SUITS, tileName } from './engine/tiles'
 import { WIND_NAME, nameOf, type Seating } from './names'
 
 export interface Lesson {
@@ -28,12 +29,42 @@ export const LESSONS: readonly Lesson[] = [
       const out = [
         `You sit at the bottom of the table as East, and you deal the first hand. ${others[0]}, ${others[1]} and ${others[2]} sit around you. Play goes to the right, so ${right} moves after you.`,
         'Everyone holds thirteen tiles; as dealer you start with fourteen. On your turn you draw one tile from the wall and throw one away. The goal is a complete hand: four sets, each a chow (three in a row from one suit) or a pung (three of a kind), and one pair.',
-        'A win must be worth at least three faan, so a complete hand is not always enough: the coach steers you toward tiles that score. Each turn, one tile on your rack glows. Tap it to pick it up, then tap it again to throw it. The line above your rack says why.',
+        'A complete hand also has to be worth at least one faan, a scoring point, and here is the rule of thumb for all of mahjong: good-looking hands score more. A hand that leans on one suit, or is all pungs, or holds pungs of dragons or of your own wind, is worth more than a mixed bag, and the coach picks with that in mind.',
+        'Each turn, one tile on your rack glows. Tap it to pick it up, then tap it again to throw it. The line above your rack says why.',
       ]
       if (s.players[me].flowers.length > 0)
         out.push(
           'The flower tiles beside your rack were dealt to you and replaced from the wall. They never join the hand, and each one is worth a faan if you win.',
         )
+      return out
+    },
+  },
+  {
+    id: 'shape',
+    title: 'Good-looking hands score more',
+    when: (s, me) => {
+      if (s.handIndex !== 0 || s.phase !== 'discard' || s.current !== me || s.discardCount < 4) return false
+      const shape = shapeOf(s, me)
+      return shape.count >= 7 || shape.valuePairs.length > 0
+    },
+    body: (s, me) => {
+      const shape = shapeOf(s, me)
+      const out = [
+        'A few turns in, your hand is starting to take a shape, and the shape is where the faan come from. A hand of one suit with winds or dragons beside it is 3 faan; one suit alone is 7; all pungs is 3; a pung of a dragon, of your seat wind or of the round wind is 1 each. Each faan doubles the payment.',
+      ]
+      if (shape.count >= 7) {
+        const others = SUITS.filter((x) => x !== shape.suit).map((x) => SUIT_NAME[x])
+        out.push(
+          `Right now ${shape.count} of your ${shape.total} tiles are ${SUIT_NAME[shape.suit]}, so the coach throws the ${others[0]} and ${others[1]} first and keeps the hand leaning that way.`,
+        )
+      }
+      if (shape.valuePairs.length > 0) {
+        const names = shape.valuePairs.map((t) => tileName(t).toLowerCase())
+        out.push(
+          `You hold two of the ${names.join(' and two of the ')}: a third makes a pung worth a faan, so those stay even when a plain tile looks more useful.`,
+        )
+      }
+      out.push('A tidy hand is also easier to finish, so the rule of thumb costs nothing. Keep following the glow.')
       return out
     },
   },
@@ -48,7 +79,7 @@ export const LESSONS: readonly Lesson[] = [
       const w = s.claim!
       const left = nameOf(seating, ((me + 3) % 4) as Seat)
       return [
-        `${nameOf(seating, w.from)} just threw ${/^[AEIOU]/.test(tileName(w.tile)) ? 'an' : 'a'} ${tileName(w.tile).toLowerCase()}, and it fits your hand. When that happens the table pauses and offers you a choice.`,
+        `${nameOf(seating, w.from)} just threw ${/^[AEIOU]/.test(tileName(w.tile)) && !tileName(w.tile).startsWith('One') ? 'an' : 'a'} ${tileName(w.tile).toLowerCase()}, and it fits your hand. When that happens the table pauses and offers you a choice.`,
         `Pung takes a discard to make three of a kind, from anyone. Chow takes a discard to make a run of three, but only from ${left}, the player on your left. Either way the set goes face up in front of you and stays there, and you throw a tile next instead of drawing one.`,
         'An open set is fine, but it costs the faan for a concealed hand and it tells the table what you are collecting. Pass keeps your hand as it is. The coach has picked for you: tap the glowing button.',
       ]
