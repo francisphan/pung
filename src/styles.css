@@ -459,6 +459,16 @@ main:focus {
   font-family: var(--font-display);
   font-size: 18px;
   color: var(--bone);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* A chip keeps one line; a sixteen-letter name gets an ellipsis rather than pushing the row wider. */
+.seat-chip .seat-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 9em;
 }
 
 .seat-active .seat-name::before,
