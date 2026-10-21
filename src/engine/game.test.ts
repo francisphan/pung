@@ -175,6 +175,60 @@ describe('discard and claims', () => {
     expect(s.current).toBe(2)
     expect(s.players[2].melds[0].kind).toBe('pung')
   })
+  it('closes the window as soon as a pung is in and nobody left could beat it', () => {
+    let s = rig(newGame(undefined, 1), [
+      'C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 B5',
+      'B3 B4 B6 B7 C2 C2 D7 D8 D9 WS WW WN GD', // chow
+      'B5 B5 C3 C3 D7 D8 D9 WS WW WN RD GD WD', // pung
+      'B1 B2 C1 C1 D4 D5 D6 WE WE RD GD C7 C8', // nothing
+    ])
+    s = reduce(s, { type: 'discard', seat: 0, tile: 'B5' })
+    expect(Object.keys(s.claim!.options).sort()).toEqual(['1', '2'])
+    s = reduce(s, { type: 'decide', decisions: { 2: { kind: 'pung' } } })
+    // Seat 1 has not answered, but a chow could never beat the pung.
+    expect(s.phase).toBe('discard')
+    expect(s.current).toBe(2)
+    expect(s.players[2].melds[0].kind).toBe('pung')
+    checkInvariants(s)
+  })
+  it('keeps the window open after a pung while a win is still possible', () => {
+    let s = rig(newGame(undefined, 1), [
+      'C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 B5',
+      'B3 B4 B6 B7 C2 C2 D7 D8 D9 WS WW WN GD', // chow
+      'B5 B5 C3 C3 D7 D8 D9 WS WW WN RD GD WD', // pung
+      'B3 B4 C1 C1 C1 D4 D5 D6 WE WE WE RD RD', // win
+    ])
+    s = reduce(s, { type: 'discard', seat: 0, tile: 'B5' })
+    s = reduce(s, { type: 'decide', decisions: { 1: { kind: 'chow', tiles: ['B3', 'B4'] }, 2: { kind: 'pung' } } })
+    expect(s.phase).toBe('claim')
+    s = reduce(s, { type: 'decide', decisions: { 3: { kind: 'pass' } } })
+    expect(s.phase).toBe('discard')
+    expect(s.current).toBe(2)
+  })
+  it('closes on a win unless an earlier seat could also win', () => {
+    const hands = [
+      'C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 B5',
+      'B3 B4 C1 C1 C1 D4 D5 D6 WE WE WE RD RD', // win (and a chow)
+      'B5 B5 C3 C3 D7 D8 D9 WS WW WN RD GD WD', // pung
+      'B6 B7 C2 C2 C2 D7 D8 D9 WS WS WS GD GD', // win
+    ]
+    let s = rig(newGame({ minimumFaan: 1, rounds: 4 }, 1), hands)
+    s = reduce(s, { type: 'discard', seat: 0, tile: 'B5' })
+    expect(s.claim!.options[1]!.some((o) => o.kind === 'win')).toBe(true)
+    expect(s.claim!.options[3]).toEqual([{ kind: 'win' }])
+    // Seat 3 wins, but seat 1 sits before it and could still take the tile.
+    s = reduce(s, { type: 'decide', decisions: { 3: { kind: 'win' } } })
+    expect(s.phase).toBe('claim')
+    s = reduce(s, { type: 'decide', decisions: { 1: { kind: 'win' } } })
+    expect(s.phase).toBe('handEnd')
+    if (s.result?.kind !== 'win') throw new Error()
+    expect(s.result.winner).toBe(1)
+    // The other way round, seat 1's win closes the window at once.
+    let t = rig(newGame({ minimumFaan: 1, rounds: 4 }, 1), hands)
+    t = reduce(t, { type: 'discard', seat: 0, tile: 'B5' })
+    t = reduce(t, { type: 'decide', decisions: { 1: { kind: 'win' } } })
+    expect(t.phase).toBe('handEnd')
+  })
   it('the win wins over pung and chow', () => {
     let s = rig(newGame(undefined, 1), [
       'C1 C2 C3 C4 C5 C6 C7 C8 C9 D1 D2 D3 D4 B5',

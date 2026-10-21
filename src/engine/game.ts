@@ -417,17 +417,49 @@ function claimSet(s: GameState, seat: Seat, claim: Claim): void {
   s.afterKong = false
 }
 
+/** The claim a seat has made, if it is one it was offered; a pass or no answer is null. */
+function chosenClaim(w: ClaimWindow, seat: Seat): Claim | null {
+  const d = w.decisions[seat]
+  if (!d || d.kind === 'pass') return null
+  const legal = (w.options[seat] ?? []).some(
+    (o) => o.kind === d.kind && (o.kind !== 'chow' || d.kind !== 'chow' || (o.tiles[0] === d.tiles[0] && o.tiles[1] === d.tiles[1])),
+  )
+  return legal ? d : null
+}
+
+/** Win over pung or kong over chow. */
+function rank(c: Claim | null): number {
+  if (!c) return 0
+  return c.kind === 'win' ? 3 : c.kind === 'chow' ? 1 : 2
+}
+
+/**
+ * Whether the window can close before everyone has answered: once a claim is
+ * in, the seats still to answer only matter if one of them could outrank it
+ * (a win beats a pung, an earlier seat's win beats a later one's).
+ */
+function settled(w: ClaimWindow): boolean {
+  const order = [1, 2, 3].map((k) => ((w.from + k) % 4) as Seat)
+  let bestRank = 0
+  let bestPos = order.length
+  order.forEach((seat, pos) => {
+    const r = rank(chosenClaim(w, seat))
+    if (r > bestRank) {
+      bestRank = r
+      bestPos = pos
+    }
+  })
+  return !order.some((seat, pos) => {
+    if (w.decisions[seat] || !w.options[seat]) return false
+    const top = Math.max(...w.options[seat].map(rank))
+    return top > bestRank || (top === bestRank && top > 0 && pos < bestPos)
+  })
+}
+
 function resolveClaims(s: GameState): void {
   const w = s.claim!
   const order = [1, 2, 3].map((k) => ((w.from + k) % 4) as Seat)
-  const chosen = (seat: Seat) => {
-    const d = w.decisions[seat]
-    if (!d || d.kind === 'pass') return null
-    const legal = (w.options[seat] ?? []).some(
-      (o) => o.kind === d.kind && (o.kind !== 'chow' || d.kind !== 'chow' || (o.tiles[0] === d.tiles[0] && o.tiles[1] === d.tiles[1])),
-    )
-    return legal ? d : null
-  }
+  const chosen = (seat: Seat) => chosenClaim(w, seat)
   for (const o of order) {
     if (chosen(o)?.kind === 'win') {
       const ctx = winContext(s, o, w.tile, false, w.source)
@@ -492,7 +524,7 @@ function decide(s: GameState, decisions: Partial<Record<Seat, Decision>>): void 
     if (d && w.options[seat]) w.decisions[seat] = d
   }
   const waiting = SEATS.filter((o) => w.options[o] && !w.decisions[o])
-  if (waiting.length === 0) resolveClaims(s)
+  if (waiting.length === 0 || settled(w)) resolveClaims(s)
 }
 
 function nextHand(s: GameState): void {
