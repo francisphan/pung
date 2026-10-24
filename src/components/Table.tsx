@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { callOf, logMark } from '../calls'
 import type { Guidance } from '../coach'
 import type { Decision, GameState, Seat } from '../engine/game'
 import { sortTiles, type StandardId } from '../engine/tiles'
@@ -10,6 +11,7 @@ import Log from './Log'
 import Opponent from './Opponent'
 import Rack from './Rack'
 import River from './River'
+import { TileShower } from './Shout'
 
 interface Props {
   state: GameState
@@ -46,23 +48,28 @@ export default function Table({ state, log, logOpen, onToggleLog, onDiscard, onS
     const i = Number(selected.split(':')[0])
     selectedTile = sortTiles(rest)[i] ?? null
   }
+  // A call already on the table when it opened, as after a reload, was made then; only a later one is stamped.
+  const [opened] = useState(() => logMark(state))
+  const call = logMark(state) === opened ? null : callOf(state)
+  const callAt = (seat: Seat) => (call?.seat === seat ? call : null)
+  const won = call?.kind === 'win' && state.result?.kind === 'win' ? state.result : null
   const latest = state.lastDiscard
   const river = (seat: Seat, side: 'top' | 'bottom' | 'left' | 'right') => (
     <River seat={seat} side={side} tiles={state.players[seat].discards} latest={latest?.seat === seat} />
   )
 
   return (
-    <div className={`table${logOpen ? ' table-with-log' : ''}`}>
+    <div className={`table${logOpen ? ' table-with-log' : ''}${won ? ' table-won' : ''}`}>
       <div className="area-top">
-        <Opponent state={state} seat={across} layout="top" />
+        <Opponent state={state} seat={across} layout="top" call={callAt(across)} />
       </div>
       <div className="area-chips">
-        <Opponent state={state} seat={left} layout="chip" />
-        <Opponent state={state} seat={across} layout="chip" />
-        <Opponent state={state} seat={right} layout="chip" />
+        <Opponent state={state} seat={left} layout="chip" call={callAt(left)} />
+        <Opponent state={state} seat={across} layout="chip" call={callAt(across)} />
+        <Opponent state={state} seat={right} layout="chip" call={callAt(right)} />
       </div>
       <div className="area-left">
-        <Opponent state={state} seat={left} layout="side" />
+        <Opponent state={state} seat={left} layout="side" call={callAt(left)} />
       </div>
       <div className="area-mid">
         <div className="rivers">
@@ -76,7 +83,7 @@ export default function Table({ state, log, logOpen, onToggleLog, onDiscard, onS
         </div>
       </div>
       <div className="area-right">
-        <Opponent state={state} seat={right} layout="side" />
+        <Opponent state={state} seat={right} layout="side" call={callAt(right)} />
       </div>
       <div className="area-rack">
         <Actions
@@ -95,11 +102,13 @@ export default function Table({ state, log, logOpen, onToggleLog, onDiscard, onS
           onSelect={setSelected}
           onDiscard={onDiscard}
           guide={guide ? { tile: guide.action.type === 'discard' ? guide.action.tile : null } : null}
+          call={callAt(me)}
         />
       </div>
       <div className="area-log">
         <Log log={log} open={logOpen} onToggle={onToggleLog} />
       </div>
+      {won && <TileShower tiles={[...won.hand.concealed, ...won.hand.melds.flatMap((m) => m.tiles), ...won.flowers]} />}
     </div>
   )
 }

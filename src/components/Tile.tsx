@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { TILE_BY_ID, tileName, type TileId } from '../engine/tiles'
 
 /**
@@ -17,12 +18,14 @@ export interface TileProps {
   /** Laid on its side, as a claimed tile is in a meld. */
   turned?: boolean
   className?: string
+  /** Mostly custom properties, such as a tile's place in a row for a staggered animation. */
+  style?: CSSProperties
   /** Hide from assistive tech when a parent already names it. */
   decorative?: boolean
 }
 
 /** A standalone tile as an inline SVG. */
-export default function Tile({ id, size = 60, back: faceDown = false, turned = false, className, decorative }: TileProps) {
+export default function Tile({ id, size = 60, back: faceDown = false, turned = false, className, style, decorative }: TileProps) {
   // A tile this device may not see (see engine/view.ts) is drawn face down.
   const back = faceDown || !(id in TILE_BY_ID)
   const h = (size * TILE_H) / TILE_W
@@ -30,7 +33,8 @@ export default function Tile({ id, size = 60, back: faceDown = false, turned = f
   const body = <use href={`${SPRITE}#${back ? 'BACK' : id}`} width={TILE_W} height={TILE_H} />
   return (
     <svg
-      className={`tile-svg${className ? ` ${className}` : ''}`}
+      className={`tile-svg${turned ? ' tile-turned' : ''}${className ? ` ${className}` : ''}`}
+      style={style}
       width={turned ? h : size}
       height={turned ? size : h}
       viewBox={turned ? `0 0 ${TILE_H} ${TILE_W}` : `0 0 ${TILE_W} ${TILE_H}`}

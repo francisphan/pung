@@ -1,10 +1,12 @@
 import { useRef, type KeyboardEvent } from 'react'
+import type { Call } from '../calls'
 import { dealerOf, seatWind, type GameState } from '../engine/game'
 import { WIND_CHAR, sortTiles, tileName, type StandardId } from '../engine/tiles'
 import { WIND_NAME, formatPoints } from '../names'
 import { useSeating } from '../seat'
 import { play } from '../sound'
 import { Flowers, MeldRow } from './Melds'
+import Shout from './Shout'
 import Tile from './Tile'
 
 interface Props {
@@ -15,17 +17,24 @@ interface Props {
   onDiscard: (tile: StandardId) => void
   /** In a guided round: the one tile that may be thrown now, or none when the move is a button. */
   guide?: { tile: StandardId | null } | null
+  /** A call you just made, stamped over your rack. */
+  call?: Call | null
 }
 
 /** Your tiles, drawn tile apart on the right. Tap to pick, tap again to throw. */
-export default function Rack({ state, selected, onSelect, onDiscard, guide = null }: Props) {
+export default function Rack({ state, selected, onSelect, onDiscard, guide = null, call = null }: Props) {
   const { me, names } = useSeating()
   const p = state.players[me]
   const myTurn = state.phase === 'discard' && state.current === me
   const drawn = myTurn ? state.drawn : null
-  const rest = [...p.concealed]
+  // Once you have won, the rack shows the whole hand, the taken tile included, and rings the tile that won.
+  const over = state.phase === 'handEnd' || state.phase === 'gameEnd'
+  const r = state.result
+  const won = over && r?.kind === 'win' && r.winner === me ? r : null
+  const rest = won ? [...won.hand.concealed] : [...p.concealed]
   if (drawn) rest.splice(rest.indexOf(drawn), 1)
   const row = sortTiles(rest)
+  const winAt = won ? row.indexOf(won.winningTile) : -1
   const wind = seatWind(state, me)
   const ref = useRef<HTMLDivElement>(null)
   // The glowing tile: the drawn one if it is the pick, else its first copy in the row.
@@ -61,14 +70,14 @@ export default function Rack({ state, selected, onSelect, onDiscard, guide = nul
     buttons[j].focus()
   }
 
-  const tileButton = (tile: StandardId, key: string) => (
+  const tileButton = (tile: StandardId, key: string, win = false) => (
     <button
       key={key}
       type="button"
-      className={`hand-tile${selected === key ? ' hand-tile-picked' : ''}${lit === key ? ' hand-tile-lit' : ''}`}
+      className={`hand-tile${selected === key ? ' hand-tile-picked' : ''}${lit === key ? ' hand-tile-lit' : ''}${win ? ' hand-tile-win' : ''}`}
       style={{ ['--w' as string]: 'var(--tile-hand)' }}
       aria-pressed={selected === key}
-      aria-label={`${tileName(tile)}${lit === key ? ", the coach’s pick" : ''}${selected === key ? ', picked. Press again to discard' : ''}`}
+      aria-label={`${tileName(tile)}${win ? ', the winning tile' : ''}${lit === key ? ", the coach’s pick" : ''}${selected === key ? ', picked. Press again to discard' : ''}`}
       disabled={!myTurn || (guide !== null && lit !== key)}
       onClick={() => tap(key, tile)}
     >
@@ -77,15 +86,15 @@ export default function Rack({ state, selected, onSelect, onDiscard, guide = nul
   )
 
   return (
-    <section className={`you${myTurn ? ' you-active' : ''}`} aria-label={`Your hand, ${WIND_NAME[wind]}`}>
+    <section className={`you${myTurn ? ' you-active' : ''}${won ? ' you-winner' : ''}`} aria-label={`Your hand, ${WIND_NAME[wind]}`}>
       <div className="you-row" ref={ref} onKeyDown={onKey}>
         <div className="hand" role="group" aria-label="Your tiles">
-          {row.map((t, i) => tileButton(t, `${i}:${t}`))}
+          {row.map((t, i) => tileButton(t, `${i}:${t}`, i === winAt))}
           {drawn && <span className="hand-gap" aria-hidden="true" />}
           {drawn && tileButton(drawn, 'drawn')}
         </div>
         <div className="you-open">
-          <MeldRow melds={p.melds} size={30} />
+          <MeldRow melds={p.melds} size={30} fresh={call?.meld ?? null} />
           <Flowers flowers={p.flowers} size={24} />
         </div>
       </div>
@@ -102,6 +111,7 @@ export default function Rack({ state, selected, onSelect, onDiscard, guide = nul
         )}
         <span className="seat-score">{formatPoints(p.score)}</span>
       </footer>
+      <Shout call={call} />
     </section>
   )
 }

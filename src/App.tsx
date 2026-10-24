@@ -11,6 +11,7 @@ import RoomLobby from './components/RoomLobby'
 import Table from './components/Table'
 import Primer from './primer/Primer'
 import { LESSON_INFO } from './primer/catalog'
+import { useCelebration } from './hooks/useCelebration'
 import { useGame, useSettings } from './hooks/useGame'
 import { useRoom } from './hooks/useRoom'
 import { useSounds } from './hooks/useSounds'
@@ -60,6 +61,8 @@ export default function App() {
   else state = soloPlaying ? solo.state : null
   const seating = page === 'friends' && room ? seatingOf(room) : SOLO
   useSounds(state, settings.sound, seating.me)
+  // A won hand is celebrated on the table for a moment before its result card comes up.
+  const celebrating = useCelebration(state)
   const toggleLog = () => setSettings({ log: !settings.log })
   // A host's browser is the table: leaving ends it for everyone else there.
   const leave = () => {
@@ -70,7 +73,7 @@ export default function App() {
   const coached = page === 'learn' && guided && solo.state ? guide(solo.state, SOLO.me, SOLO) : null
   const lesson = page === 'learn' && guided ? solo.lesson : null
   // While a card covers the table, what lies under it is inert, so the keyboard stays in the card.
-  const modal = lesson !== null || (state !== null && (state.phase === 'handEnd' || state.phase === 'gameEnd'))
+  const modal = lesson !== null || (state !== null && ((state.phase === 'handEnd' && !celebrating) || state.phase === 'gameEnd'))
 
   // A solo table, plain or guided.
   const soloTable = (s: NonNullable<typeof solo.state>) => (
@@ -89,7 +92,7 @@ export default function App() {
         />
       </div>
       {lesson && <Lesson title={lesson.title} body={lesson.body(s, SOLO.me, SOLO)} onDone={() => solo.finishLesson(lesson.id)} />}
-      {s.phase === 'handEnd' && <Result state={s} onNext={solo.nextHand} note={guided ? resultNote(s, SOLO.me, SOLO) : undefined} />}
+      {s.phase === 'handEnd' && !celebrating && <Result state={s} onNext={solo.nextHand} note={guided ? resultNote(s, SOLO.me, SOLO) : undefined} />}
       {s.phase === 'gameEnd' && (
         <GameOver
           state={s}
@@ -175,7 +178,7 @@ export default function App() {
               onDecide={online.decide}
             />
           </div>
-          {state.phase === 'handEnd' && (
+          {state.phase === 'handEnd' && !celebrating && (
             <Result
               state={state}
               onNext={online.nextHand}

@@ -23,6 +23,8 @@
   --font-body: 'Atkinson Hyperlegible', system-ui, sans-serif, 'Noto Serif TC';
   --font-cjk: 'Noto Serif TC', 'Songti TC', 'PMingLiU', 'Noto Serif CJK TC', serif;
   --ease: cubic-bezier(0.3, 0, 0.15, 1);
+  /* A confident arrival: fast out of the gate, settling without a bounce. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   /* Your tiles scale with the screen: 14 across plus the drawn-tile gap. */
   --tile-hand: clamp(22px, calc((100vw - 90px) / 14.4), 56px);
 }
@@ -385,6 +387,7 @@ main:focus {
 /* Rivers around the wind marker */
 
 .rivers {
+  position: relative;
   flex: 1;
   max-height: 640px;
   display: grid;
@@ -503,6 +506,8 @@ main:focus {
 /* Seats */
 
 .seat {
+  /* A call is stamped over the seat that made it. */
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -668,6 +673,7 @@ main:focus {
 /* Your rack */
 
 .you {
+  position: relative;
   padding-top: 4px;
 }
 
@@ -1768,4 +1774,396 @@ main:focus {
 .log-line {
   content-visibility: auto;
   contain-intrinsic-size: auto 44px;
+}
+
+/* Calls: what a player says out loud, stamped over their seat like a seal pressed on the felt */
+
+.shout {
+  --seal: 72px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: shout 1200ms var(--ease-out) both;
+}
+
+/* The thud: a ring spreading over the felt from where the seal lands. */
+.shout::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--seal) / 2);
+  left: 50%;
+  width: calc(var(--seal) * 2.2);
+  height: calc(var(--seal) * 2.2);
+  border: 2px solid rgba(243, 234, 211, 0.6);
+  border-radius: 50%;
+  opacity: 0;
+  animation: thud 650ms ease-out 100ms both;
+}
+
+.shout-seal {
+  display: grid;
+  place-items: center;
+  min-width: var(--seal);
+  height: var(--seal);
+  padding: 0 calc(var(--seal) * 0.12);
+  border-radius: calc(var(--seal) * 0.18);
+  background: var(--lacquer);
+  color: var(--bone);
+  font-family: var(--font-cjk);
+  font-weight: 900;
+  font-size: calc(var(--seal) * 0.62);
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow:
+    inset 0 0 0 3px var(--lacquer),
+    inset 0 0 0 5px var(--bone),
+    0 12px 24px -8px rgba(0, 0, 0, 0.6);
+  transform: rotate(-6deg);
+  animation: seal 420ms var(--ease-out) both;
+}
+
+.shout-word {
+  padding: 2px 11px;
+  border-radius: 999px;
+  background: var(--bone);
+  color: var(--lacquer-deep);
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.3;
+  white-space: nowrap;
+  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.6);
+}
+
+.shout-win {
+  --seal: 100px;
+  animation-name: shout-win;
+  animation-duration: 2200ms;
+}
+
+.shout-win .shout-seal {
+  font-size: calc(var(--seal) * 0.46);
+  box-shadow:
+    inset 0 0 0 3px var(--lacquer),
+    inset 0 0 0 5px var(--bamboo),
+    0 0 0 2px var(--bamboo),
+    0 0 30px 6px rgba(201, 164, 92, 0.55),
+    0 12px 24px -8px rgba(0, 0, 0, 0.6);
+}
+
+.shout-win .shout-word {
+  font-size: 22px;
+}
+
+/* Across the table the seat's name sits above its rack; the seal lands below it. */
+.seat-top .shout {
+  top: 68%;
+}
+
+.seat-chip .shout {
+  --seal: 56px;
+}
+
+.seat-chip .shout-win {
+  --seal: 72px;
+}
+
+.seat-chip .shout-word {
+  padding: 1px 9px;
+  font-size: 15px;
+}
+
+.you .shout {
+  --seal: 84px;
+}
+
+.you .shout-win {
+  --seal: 108px;
+}
+
+@keyframes shout {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.9);
+  }
+  16% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  72% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -64%) scale(0.94);
+  }
+}
+
+@keyframes shout-win {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.2);
+  }
+  9% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -62%) scale(0.94);
+  }
+}
+
+@keyframes seal {
+  from {
+    transform: rotate(-20deg);
+  }
+  to {
+    transform: rotate(-6deg);
+  }
+}
+
+@keyframes thud {
+  from {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.25);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* A set just laid down: the tiles from the hand first, then the one taken from the river, turned on its side */
+
+.meld-fresh .tile-svg {
+  animation: meld-in 380ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 75ms);
+}
+
+.meld-fresh .tile-turned {
+  animation-name: meld-in-turned;
+  animation-duration: 480ms;
+}
+
+@keyframes meld-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.5);
+  }
+}
+
+@keyframes meld-in-turned {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) rotate(-90deg) scale(0.5);
+  }
+}
+
+/* The end of a hand: racks turn face up one tile after another, and the winner's is ringed in gold */
+
+.seat-rack,
+.seat-reveal {
+  perspective: 500px;
+}
+
+.seat-revealed .seat-rack .tile-svg,
+.seat-revealed .seat-reveal .tile-svg {
+  animation: flip 480ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+@keyframes flip {
+  from {
+    opacity: 0.3;
+    transform: rotateY(-90deg);
+  }
+}
+
+.seat-winner .seat-rack,
+.seat-winner .seat-reveal,
+.you-winner .hand {
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 3px var(--bamboo),
+    0 0 6px 0 rgba(201, 164, 92, 0.3);
+  animation: hail 700ms ease-in-out 4 alternate;
+}
+
+@keyframes hail {
+  from {
+    box-shadow:
+      0 0 0 3px var(--bamboo),
+      0 0 6px 0 rgba(201, 164, 92, 0.3);
+  }
+  to {
+    box-shadow:
+      0 0 0 3px var(--bamboo),
+      0 0 28px 12px rgba(201, 164, 92, 0.7);
+  }
+}
+
+.tile-win,
+.hand-tile-win .tile-svg {
+  box-shadow: 0 0 0 3px var(--lacquer);
+  border-radius: 12% / 10%;
+}
+
+/* The felt lights up for a moment when a hand is won. */
+.rivers::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 164, 92, 0.9),
+    inset 0 0 120px 24px rgba(201, 164, 92, 0.35);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.table-won .rivers::after {
+  animation: felt-glow 1800ms var(--ease-out) both;
+}
+
+@keyframes felt-glow {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* A win: the winning hand showers down over the table */
+
+.shower {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.shower-tile {
+  position: absolute;
+  top: -30px;
+  left: var(--x);
+  line-height: 0;
+  will-change: transform;
+  animation: shower var(--t) cubic-bezier(0.35, 0, 0.75, 0.55) var(--d) both;
+}
+
+@keyframes shower {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(var(--r));
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--dx), 100vh, 0) rotate(calc(var(--r) + 300deg));
+  }
+}
+
+/* The cards rise into place; on a result, the faan count lands a beat later */
+
+.overlay {
+  animation: veil 240ms ease-out both;
+}
+
+.card {
+  animation: rise 420ms var(--ease-out) both;
+}
+
+.total-faan {
+  animation: pop 520ms var(--ease-out) 240ms both;
+}
+
+@keyframes veil {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* With reduced motion the calls still show, fading in and out in place; the rest holds still */
+
+@media (prefers-reduced-motion: reduce) {
+  .shout,
+  .shout-win {
+    animation: shout-calm 1200ms linear both;
+  }
+
+  .shout::before,
+  .shout-seal,
+  .seat-revealed .seat-rack .tile-svg,
+  .seat-revealed .seat-reveal .tile-svg,
+  .seat-winner .seat-rack,
+  .seat-winner .seat-reveal,
+  .you-winner .hand,
+  .table-won .rivers::after,
+  .card,
+  .total-faan {
+    animation: none;
+  }
+
+  .shower {
+    display: none;
+  }
+
+  .meld-fresh .tile-svg,
+  .meld-fresh .tile-turned {
+    animation-name: meld-in-calm;
+  }
+}
+
+@keyframes shout-calm {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes meld-in-calm {
+  from {
+    opacity: 0;
+  }
 }
