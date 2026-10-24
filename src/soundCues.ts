@@ -39,21 +39,28 @@ export function cuesFor(prev: SoundMark | null, s: GameState, me: Seat = 0): Sch
       case 'discard':
         out.push({ cue: 'discard', at: step() })
         break
+      // A call: the sting lands with the burst, and the tiles clack down after it.
       case 'chow':
-      case 'pung':
-        out.push({ cue: 'claim', at: step() })
+      case 'pung': {
+        const t = step()
+        out.push({ cue: 'shout', at: t }, { cue: 'claim', at: t + 0.18 })
         break
+      }
       case 'kong':
       case 'concealedKong':
-      case 'addedKong':
-        out.push({ cue: 'kong', at: step() })
+      case 'addedKong': {
+        const t = step()
+        out.push({ cue: 'shoutKong', at: t }, { cue: 'kong', at: t + 0.22 })
         break
+      }
       case 'flower':
         out.push({ cue: 'flower', at: step() })
         break
-      case 'win':
-        out.push({ cue: 'win', at: step() })
+      case 'win': {
+        const t = step()
+        out.push({ cue: 'alert', at: t }, { cue: 'win', at: t + 0.35 })
         break
+      }
       case 'exhausted':
         out.push({ cue: 'exhausted', at: step() })
         break

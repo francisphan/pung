@@ -47,6 +47,18 @@ low-passed between 1.6 and 2.2 kHz. Peaks sit well below full scale (strikes
 at -9 dBFS, the pick-up at -19 dBFS) because iPad Safari ignores volume
 changes on audio elements. Encoded with ffmpeg (libmp3lame, mono, 96 kb/s).
 
+### Stings for the calls
+
+`shout`, `shout-kong` and `alert`, which sound with the call bursts, are not
+recordings but homages drawn by `scripts/build-sounds.mjs`: `shout` is a
+whoosh, a slam and a wordless synthetic shout (a sawtooth driven through the
+formants of an open "ah"), after the courtroom "Objection!" of the Ace
+Attorney games; `shout-kong` slams twice; `alert` is a rising two-note
+electronic "!" with two echoes, after the alarm of the Metal Gear Solid
+games. Nothing from either game is used. They are encoded with the
+pure-JavaScript LAME port `@breezystack/lamejs` at the same mono 96 kb/s,
+peaking at -9 dBFS like the strikes. Run `npm run sounds` to rebuild them.
+
 ## Fonts
 
 Young Serif, Atkinson Hyperlegible and Noto Serif TC are served from Google Fonts
