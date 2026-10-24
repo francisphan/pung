@@ -1776,172 +1776,205 @@ main:focus {
   contain-intrinsic-size: auto 44px;
 }
 
-/* Calls: what a player says out loud, stamped over their seat like a seal pressed on the felt */
+/* Calls: what a player shouts, bursting over their seat the way a comic book draws a blow */
 
 .shout {
-  --seal: 72px;
+  /* The burst is drawn in a box of --bw by --bh units, set by the call; --k scales it to the seat. */
+  --k: 1;
+  --pow: #ffd54a;
   position: absolute;
   top: 50%;
   left: 50%;
   z-index: 6;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  animation: shout 1200ms var(--ease-out) both;
-}
-
-/* The thud: a ring spreading over the felt from where the seal lands. */
-.shout::before {
-  content: '';
-  position: absolute;
-  top: calc(var(--seal) / 2);
-  left: 50%;
-  width: calc(var(--seal) * 2.2);
-  height: calc(var(--seal) * 2.2);
-  border: 2px solid rgba(243, 234, 211, 0.6);
-  border-radius: 50%;
-  opacity: 0;
-  animation: thud 650ms ease-out 100ms both;
-}
-
-.shout-seal {
   display: grid;
   place-items: center;
-  min-width: var(--seal);
-  height: var(--seal);
-  padding: 0 calc(var(--seal) * 0.12);
-  border-radius: calc(var(--seal) * 0.18);
-  background: var(--lacquer);
-  color: var(--bone);
-  font-family: var(--font-cjk);
-  font-weight: 900;
-  font-size: calc(var(--seal) * 0.62);
-  line-height: 1;
-  white-space: nowrap;
-  box-shadow:
-    inset 0 0 0 3px var(--lacquer),
-    inset 0 0 0 5px var(--bone),
-    0 12px 24px -8px rgba(0, 0, 0, 0.6);
-  transform: rotate(-6deg);
-  animation: seal 420ms var(--ease-out) both;
+  width: calc(var(--bw) * 1px * var(--k));
+  height: calc(var(--bh) * 1px * var(--k));
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-6deg);
+  animation: pow 1200ms var(--ease-out) both;
+}
+
+.burst {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.burst-shadow,
+.burst-dots {
+  fill: var(--ink);
+}
+
+.burst-fill,
+.burst-back {
+  fill: var(--pow);
+  stroke: var(--ink);
+  stroke-width: 3px;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+}
+
+.burst-dots {
+  opacity: 0.22;
 }
 
 .shout-word {
-  padding: 2px 11px;
+  position: relative;
+  padding: 0 0.12em;
+  font-family: 'Bangers', Impact, 'Arial Narrow Bold', sans-serif;
+  font-size: calc(var(--bh) * 0.42px * var(--k));
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--lacquer);
+  -webkit-text-stroke: calc(var(--k) * 2.2px) var(--ink);
+  paint-order: stroke fill;
+  text-shadow: calc(var(--k) * 3px) calc(var(--k) * 3px) 0 var(--ink);
+  transform: skewX(-6deg);
+  animation: pow-word 460ms var(--ease-out) 60ms both;
+}
+
+/* The Cantonese, on a badge pinned to the burst's corner. */
+.shout-cjk {
+  position: absolute;
+  top: 2%;
+  left: 3%;
+  display: grid;
+  place-items: center;
+  min-width: calc(var(--bh) * 0.3px * var(--k));
+  height: calc(var(--bh) * 0.3px * var(--k));
+  padding: 0 0.3em;
+  border: calc(var(--k) * 2.5px) solid var(--ink);
   border-radius: 999px;
   background: var(--bone);
-  color: var(--lacquer-deep);
-  font-family: var(--font-display);
-  font-size: 18px;
-  line-height: 1.3;
+  color: var(--lacquer);
+  font-family: var(--font-cjk);
+  font-weight: 900;
+  font-size: calc(var(--bh) * 0.17px * var(--k));
+  line-height: 1;
   white-space: nowrap;
-  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.6);
+  box-shadow: calc(var(--k) * 2px) calc(var(--k) * 2px) 0 var(--ink);
+  transform: rotate(-12deg);
+  animation: pow-badge 420ms var(--ease-out) 180ms both;
 }
 
 .shout-win {
-  --seal: 100px;
-  animation-name: shout-win;
+  animation-name: pow-win;
   animation-duration: 2200ms;
 }
 
-.shout-win .shout-seal {
-  font-size: calc(var(--seal) * 0.46);
-  box-shadow:
-    inset 0 0 0 3px var(--lacquer),
-    inset 0 0 0 5px var(--bamboo),
-    0 0 0 2px var(--bamboo),
-    0 0 30px 6px rgba(201, 164, 92, 0.55),
-    0 12px 24px -8px rgba(0, 0, 0, 0.6);
+.shout-win .burst-fill {
+  fill: var(--lacquer);
 }
 
 .shout-win .shout-word {
-  font-size: 22px;
+  color: var(--pow);
 }
 
-/* Across the table the seat's name sits above its rack; the seal lands below it. */
+/* Across the table the seat's name sits above its rack; the burst lands below it. */
 .seat-top .shout {
   top: 68%;
 }
 
 .seat-chip .shout {
-  --seal: 56px;
+  --k: 0.55;
 }
 
 .seat-chip .shout-win {
-  --seal: 72px;
+  --k: 0.48;
 }
 
-.seat-chip .shout-word {
-  padding: 1px 9px;
-  font-size: 15px;
+/* On a phone the outer chips sit at the screen's edges, so their bursts lean inwards to stay on screen. */
+.area-chips .seat:first-child .shout {
+  left: 70%;
+}
+
+.area-chips .seat:last-child .shout {
+  left: 30%;
 }
 
 .you .shout {
-  --seal: 84px;
+  --k: 1.1;
 }
 
-.you .shout-win {
-  --seal: 108px;
-}
-
-@keyframes shout {
+@keyframes pow {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1.9);
+    transform: translate(-50%, -50%) scale(0.2) rotate(-16deg);
   }
-  16% {
+  14% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1.12) rotate(-3deg);
   }
-  72% {
+  24% {
+    transform: translate(-50%, -50%) scale(0.96) rotate(-8deg);
+  }
+  34% {
+    transform: translate(-50%, -50%) scale(1) rotate(-6deg);
+  }
+  74% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1) rotate(-6deg);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -64%) scale(0.94);
+    transform: translate(-50%, -58%) scale(1.06) rotate(-6deg);
   }
 }
 
-@keyframes shout-win {
+@keyframes pow-win {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(2.2);
+    transform: translate(-50%, -50%) scale(0.2) rotate(-16deg);
   }
-  9% {
+  8% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1.14) rotate(-3deg);
   }
-  80% {
+  13% {
+    transform: translate(-50%, -50%) scale(0.96) rotate(-8deg);
+  }
+  19% {
+    transform: translate(-50%, -50%) scale(1) rotate(-6deg);
+  }
+  82% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(1) rotate(-6deg);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -62%) scale(0.94);
+    transform: translate(-50%, -58%) scale(1.06) rotate(-6deg);
   }
 }
 
-@keyframes seal {
+@keyframes pow-word {
   from {
-    transform: rotate(-20deg);
+    transform: skewX(-6deg) scale(0.3);
+  }
+  55% {
+    transform: skewX(-6deg) scale(1.12);
   }
   to {
-    transform: rotate(-6deg);
+    transform: skewX(-6deg) scale(1);
   }
 }
 
-@keyframes thud {
+@keyframes pow-badge {
   from {
-    opacity: 0.9;
-    transform: translate(-50%, -50%) scale(0.25);
-  }
-  to {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1);
+    transform: rotate(-30deg) scale(0.3);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(-8deg) scale(1.1);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-12deg) scale(1);
   }
 }
 
@@ -2124,8 +2157,8 @@ main:focus {
     animation: shout-calm 1200ms linear both;
   }
 
-  .shout::before,
-  .shout-seal,
+  .shout-word,
+  .shout-cjk,
   .seat-revealed .seat-rack .tile-svg,
   .seat-revealed .seat-reveal .tile-svg,
   .seat-winner .seat-rack,
