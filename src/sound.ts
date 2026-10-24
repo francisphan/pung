@@ -5,7 +5,7 @@
  * they need nothing but one tap on the page before the first sound.
  */
 
-export type Cue = 'pick' | 'discard' | 'claim' | 'kong' | 'draw' | 'deal' | 'win' | 'exhausted' | 'flower' | 'shout' | 'shoutKong' | 'alert'
+export type Cue = 'pick' | 'discard' | 'claim' | 'kong' | 'draw' | 'deal' | 'win' | 'exhausted' | 'flower'
 
 const BASE = `${import.meta.env.BASE_URL}sounds/`
 
@@ -20,30 +20,13 @@ export const TAKES: Record<Cue, string[]> = {
   win: ['win.mp3'],
   exhausted: ['exhausted.mp3'],
   flower: ['flower.mp3'],
-  // The stings that go with the call bursts, drawn by scripts/build-sounds.mjs.
-  shout: ['shout.mp3'],
-  shoutKong: ['shout-kong.mp3'],
-  alert: ['alert.mp3'],
 }
 
 /** How many copies of a file may sound at once. */
-const VOICES: Record<Cue, number> = { pick: 2, discard: 2, claim: 2, kong: 1, draw: 2, deal: 1, win: 1, exhausted: 1, flower: 2, shout: 2, shoutKong: 1, alert: 1 }
+const VOICES: Record<Cue, number> = { pick: 2, discard: 2, claim: 2, kong: 1, draw: 2, deal: 1, win: 1, exhausted: 1, flower: 2 }
 
 /** Relative levels. iOS ignores element volume, so the files are also mastered to these levels. */
-const VOLUME: Record<Cue, number> = {
-  pick: 0.35,
-  discard: 0.75,
-  claim: 0.75,
-  kong: 0.75,
-  draw: 0.5,
-  deal: 0.55,
-  win: 0.7,
-  exhausted: 0.6,
-  flower: 0.5,
-  shout: 0.85,
-  shoutKong: 0.85,
-  alert: 0.85,
-}
+const VOLUME: Record<Cue, number> = { pick: 0.35, discard: 0.75, claim: 0.75, kong: 0.75, draw: 0.5, deal: 0.55, win: 0.7, exhausted: 0.6, flower: 0.5 }
 
 const pools = new Map<string, HTMLAudioElement[]>()
 const timers = new Set<ReturnType<typeof setTimeout>>()

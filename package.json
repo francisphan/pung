@@ -13,8 +13,7 @@
     "server:build": "vite build -c vite.server.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "tiles": "node scripts/build-tiles.mjs",
-    "sounds": "node scripts/build-sounds.mjs"
+    "tiles": "node scripts/build-tiles.mjs"
   },
   "dependencies": {
     "peerjs": "^1.5.5",
@@ -23,7 +22,6 @@
     "ws": "^8.22.0"
   },
   "devDependencies": {
-    "@breezystack/lamejs": "^1.2.7",
     "@eslint/js": "^10.0.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
