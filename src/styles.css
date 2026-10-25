@@ -19,6 +19,13 @@
   --indigo: #2f5d9e;
   --bamboo: #c9a45c;
   --bamboo-deep: #8f7336;
+  /* The lacquered wood of the table's rail and the rack. */
+  --rail: #3b1d13;
+  --rail-light: #7d3b26;
+  --rail-deep: #22100a;
+  /* A fine grain laid over felt and paper. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain-soft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   --font-display: 'Young Serif', Georgia, 'Times New Roman', serif, 'Noto Serif TC';
   --font-body: 'Atkinson Hyperlegible', system-ui, sans-serif, 'Noto Serif TC';
   --font-cjk: 'Noto Serif TC', 'Songti TC', 'PMingLiU', 'Noto Serif CJK TC', serif;
@@ -61,7 +68,9 @@ html {
 
 body {
   margin: 0;
-  background: var(--felt);
+  background-color: var(--felt);
+  background-image: var(--grain), radial-gradient(80% 60vh at 50% 32vh, color-mix(in srgb, var(--felt-light) 40%, var(--felt)), var(--felt) 72%);
+  background-repeat: repeat, no-repeat;
 }
 
 .app {
@@ -147,14 +156,28 @@ main:focus {
 }
 
 .wordmark-link:hover .wordmark-cjk {
-  color: var(--bone);
+  transform: rotate(-2deg);
 }
 
+/* The 碰 is stamped beside the name the way a seal signs a scroll. */
 .wordmark-cjk {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  align-self: center;
+  border-radius: 4px;
+  background: var(--lacquer);
+  color: var(--bone);
   font-family: var(--font-cjk);
   font-weight: 900;
-  font-size: 20px;
-  color: var(--bone-dim);
+  font-size: 21px;
+  line-height: 1;
+  box-shadow:
+    inset 0 0 0 1.5px var(--bone),
+    inset 0 0 0 3.5px var(--lacquer);
+  transform: rotate(-7deg);
+  transition: transform 160ms var(--ease);
 }
 
 .masthead-nav {
@@ -428,9 +451,25 @@ main:focus {
     '. rbottom .';
   gap: 12px;
   padding: 12px;
-  border-radius: 14px;
-  background: var(--felt-deep);
-  box-shadow: inset 0 0 0 1px rgba(243, 234, 211, 0.12);
+  border: 7px solid var(--rail);
+  border-radius: 18px;
+  background: var(--grain) repeat, var(--felt-deep);
+  box-shadow:
+    inset 0 3px 12px rgba(0, 0, 0, 0.55),
+    0 0 0 1px var(--rail-deep),
+    0 14px 28px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* The rail catches the light along its top edge. */
+.rivers::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px 0 var(--rail-light),
+    inset 0 -1px 0 var(--rail-deep);
+  pointer-events: none;
 }
 
 .rivers-top {
@@ -716,10 +755,25 @@ main:focus {
 }
 
 .hand {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 3px;
-  padding-top: 14px;
+  padding: 14px 6px 0;
+  border-bottom: 7px solid var(--rail);
+  border-radius: 0 0 5px 5px;
+}
+
+/* The rack's top edge catches the light. */
+.hand::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 1px;
+  background: var(--rail-light);
+  pointer-events: none;
 }
 
 .hand-tile {
@@ -991,8 +1045,9 @@ main:focus {
   padding: 22px 24px 20px;
   border-radius: 12px;
   border-bottom: 6px solid var(--bone-shade);
-  background: var(--bone);
+  background: var(--grain-soft) repeat, var(--bone);
   color: var(--ink);
+  box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.7);
 }
 
 .card-title {
@@ -1129,15 +1184,80 @@ main:focus {
 /* Lobby */
 
 .lobby {
-  max-width: 600px;
-  margin: 28px auto 0;
+  max-width: 860px;
+  margin: 22px auto 0;
 }
 
+/* The first thing on the page is the table: a rack of tiles on the rail, a few discards on the felt. */
 .lobby-hero {
+  --hero-tile: clamp(26px, calc((100vw - 120px) / 15.2), 52px);
+  position: relative;
+  margin: 0 0 26px;
+  padding: 22px 16px 0;
+  border: 8px solid var(--rail);
+  border-bottom-width: 12px;
+  border-radius: 20px;
+  background: var(--grain) repeat, var(--felt-deep);
+  box-shadow:
+    inset 0 3px 14px rgba(0, 0, 0, 0.55),
+    inset 0 8px 0 -7px var(--rail-light),
+    0 0 0 1px var(--rail-deep),
+    0 18px 36px -14px rgba(0, 0, 0, 0.7);
+}
+
+.hero-river {
   display: flex;
+  gap: 3px;
+  margin: 0 0 26px 8%;
+  opacity: 0.92;
+}
+
+.hero-river .tile-svg {
+  width: calc(var(--hero-tile) * 0.56);
+  height: auto;
+}
+
+.hero-rack {
+  display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
-  gap: 6px;
-  margin-bottom: 16px;
+  justify-content: center;
+  gap: 3px;
+  margin: 0 -4px;
+}
+
+.hero-rack .tile-svg {
+  width: var(--hero-tile);
+  height: auto;
+}
+
+.hero-gap {
+  width: calc(var(--hero-tile) * 0.4);
+}
+
+.lobby-body {
+  max-width: 600px;
+}
+
+/* On a phone the hand sits on two racks of seven. */
+@media (max-width: 480px) {
+  .lobby-hero {
+    --hero-tile: 36px;
+    padding: 18px 12px 0;
+  }
+
+  .hero-rack {
+    max-width: 276px;
+    margin: 0 auto;
+  }
+
+  .hero-gap {
+    display: none;
+  }
+
+  .hero-river {
+    margin-left: 4%;
+  }
 }
 
 .lobby-title,
@@ -1150,7 +1270,7 @@ main:focus {
   margin: 0 0 10px;
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 40px;
+  font-size: clamp(36px, 5vw, 48px);
   line-height: 1.05;
 }
 
@@ -1181,10 +1301,13 @@ main:focus {
   margin: 0 8px 8px 0;
   padding: 8px 14px 9px;
   border: 1.5px solid var(--bone-dim);
-  border-bottom-width: 4px;
+  border-bottom-width: 5px;
   border-radius: 8px;
   color: var(--bone-dim);
   cursor: pointer;
+  transition:
+    transform 140ms var(--ease),
+    box-shadow 140ms var(--ease);
 }
 
 .choice-opt input {
@@ -1203,7 +1326,11 @@ main:focus {
   background: var(--bone);
   color: var(--ink);
   border-color: var(--bone);
-  border-bottom-color: var(--bone-shade);
+  border-bottom-color: var(--jade-shade);
+  box-shadow:
+    0 0 0 2.5px var(--lacquer),
+    0 6px 10px -4px rgba(0, 0, 0, 0.6);
+  transform: translateY(-3px);
 }
 
 .choice-label {
