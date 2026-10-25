@@ -1066,3 +1066,14 @@
   border-top: 1px solid rgba(243, 234, 211, 0.18);
   color: var(--bone-dim);
 }
+
+/* On a touch screen every control reaches a 44px target. */
+@media (pointer: coarse) {
+  .primer .btn,
+  .primer .seg-btn,
+  .primer .quiz-opt,
+  .primer .step,
+  .primer .pattern {
+    min-height: 44px;
+  }
+}
