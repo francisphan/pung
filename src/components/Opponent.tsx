@@ -5,7 +5,6 @@ import { isHidden } from '../engine/view'
 import { WIND_NAME, formatPoints, nameOf } from '../names'
 import { useSeating } from '../seat'
 import { Flowers, MeldRow } from './Melds'
-import Shout from './Shout'
 import Tile from './Tile'
 
 interface Props {
@@ -79,7 +78,6 @@ export default function Opponent({ state, seat, layout, call = null }: Props) {
         <MeldRow melds={p.melds} size={layout === 'chip' ? 20 : 26} seat={seat} fresh={call?.meld ?? null} />
         <Flowers flowers={p.flowers} size={layout === 'chip' ? 18 : 22} />
       </div>
-      <Shout call={call} />
     </section>
   )
 }

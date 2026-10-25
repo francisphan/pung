@@ -29,4 +29,12 @@ describe('Shout', () => {
     expect(pung.querySelector('.burst-back')).toBeNull()
     expect(pung.querySelector('.shout-cjk')).toHaveTextContent('碰')
   })
+
+  it('tags the burst with the caller’s name when given one', () => {
+    const call = { id: '0:4', seat: 2 as const, kind: 'chow' as const, tile: 'B3' as const, own: false, meld: 0 }
+    const { container } = render(<Shout call={call} by="Bo" />)
+    expect(container.querySelector('.shout-by')).toHaveTextContent('Bo')
+    const { container: plain } = render(<Shout call={call} />)
+    expect(plain.querySelector('.shout-by')).toBeNull()
+  })
 })

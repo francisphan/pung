@@ -574,7 +574,7 @@ main:focus {
 /* Seats */
 
 .seat {
-  /* A call is stamped over the seat that made it. */
+  /* The winner's ring and the reveal are drawn against the seat. */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1996,7 +1996,7 @@ main:focus {
   contain-intrinsic-size: auto 44px;
 }
 
-/* Calls: what a player shouts, bursting over their seat the way a comic book draws a blow */
+/* Calls: what a player shouts, bursting over the board the way a comic book draws a blow, with their name on a tag */
 
 .shout {
   /* The burst is drawn in a box of --bw by --bh units, set by the call; --k scales it to the seat. */
@@ -2093,32 +2093,6 @@ main:focus {
 
 .shout-win .shout-word {
   color: var(--pow);
-}
-
-/* Across the table the seat's name sits above its rack; the burst lands below it. */
-.seat-top .shout {
-  top: 68%;
-}
-
-.seat-chip .shout {
-  --k: 0.55;
-}
-
-.seat-chip .shout-win {
-  --k: 0.48;
-}
-
-/* On a phone the outer chips sit at the screen's edges, so their bursts lean inwards to stay on screen. */
-.area-chips .seat:first-child .shout {
-  left: 70%;
-}
-
-.area-chips .seat:last-child .shout {
-  left: 30%;
-}
-
-.you .shout {
-  --k: 1.1;
 }
 
 @keyframes pow {
@@ -2379,6 +2353,7 @@ main:focus {
 
   .shout-word,
   .shout-cjk,
+  .shout-by,
   .hand-tile-lit .tile-svg,
   .act-lit,
   .seat-revealed .seat-rack .tile-svg,
@@ -2420,5 +2395,50 @@ main:focus {
 @keyframes meld-in-calm {
   from {
     opacity: 0;
+  }
+}
+
+/* The burst lands on the board, over the rivers, with the caller's name on a tag */
+
+.rivers .shout {
+  --k: 1.25;
+}
+
+.rivers .shout-win {
+  --k: 1.15;
+}
+
+.shout-by {
+  position: absolute;
+  right: 3%;
+  bottom: 4%;
+  padding: 0.14em 0.5em 0.1em;
+  border: calc(var(--k) * 2.5px) solid var(--ink);
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: 'Bangers', Impact, 'Arial Narrow Bold', sans-serif;
+  font-size: calc(var(--bh) * 0.16px * var(--k));
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: calc(var(--k) * 2px) calc(var(--k) * 2px) 0 var(--bone-shade);
+  transform: rotate(4deg);
+  animation: pow-badge 420ms var(--ease-out) 260ms both;
+}
+
+@media (max-width: 719px) {
+  /* The rivers stack on a phone with the wind card last; the burst sits over the tiles, clear of the card. */
+  .rivers .shout {
+    --k: 0.9;
+    top: 42%;
+  }
+
+  .rivers .shout-win {
+    --k: 0.78;
   }
 }

@@ -4,6 +4,7 @@ import type { Guidance } from '../coach'
 import type { Decision, GameState, Seat } from '../engine/game'
 import { sortTiles, type StandardId } from '../engine/tiles'
 import type { LogHistory } from '../log'
+import { nameOf } from '../names'
 import { useSeating } from '../seat'
 import Actions from './Actions'
 import Compass from './Compass'
@@ -11,7 +12,7 @@ import Log from './Log'
 import Opponent from './Opponent'
 import Rack from './Rack'
 import River from './River'
-import { TileShower } from './Shout'
+import Shout, { TileShower } from './Shout'
 
 interface Props {
   state: GameState
@@ -27,7 +28,8 @@ interface Props {
 }
 
 export default function Table({ state, log, logOpen, onToggleLog, onDiscard, onSelfWin, onKong, onDecide, guide = null }: Props) {
-  const { me } = useSeating()
+  const seating = useSeating()
+  const me = seating.me
   // Play runs counter-clockwise, so the next player is on your right.
   const right = ((me + 1) % 4) as Seat
   const across = ((me + 2) % 4) as Seat
@@ -80,6 +82,8 @@ export default function Table({ state, log, logOpen, onToggleLog, onDiscard, onS
           </div>
           <div className="rivers-right">{river(right, 'right')}</div>
           <div className="rivers-bottom">{river(me, 'bottom')}</div>
+          {/* The call bursts over the board; the set itself is laid down at the seat. */}
+          <Shout call={call} by={call ? nameOf(seating, call.seat) : null} />
         </div>
       </div>
       <div className="area-right">

@@ -25,22 +25,22 @@ describe('Table', () => {
     expect(container.querySelector('.meld-fresh')).toBeNull()
   })
 
-  it('stamps a pung over the seat that made it and lays the set down', () => {
+  it('bursts a pung over the board with the caller’s name, and lays the set down at the seat', () => {
     const { container, rerender } = render(table(pung.before))
     expect(container.querySelector('.shout')).toBeNull()
     rerender(table(pung.after))
     const e = pung.after.log[pung.after.log.length - 1]
     if (e.kind !== 'pung') throw new Error('not a pung')
     const shouts = Array.from(container.querySelectorAll('.shout-pung'))
-    expect(shouts.length).toBeGreaterThan(0)
-    for (const shout of shouts) {
-      expect(shout).toHaveTextContent('碰')
-      expect(shout).toHaveTextContent('Pung!')
-      expect(shout).toHaveAttribute('aria-hidden', 'true')
-      // Over the seat that called, in every layout it is drawn in.
-      const label = e.seat === SOLO.me ? 'Your hand,' : `${SOLO.names[e.seat]},`
-      expect(shout.closest('section')?.getAttribute('aria-label')).toMatch(new RegExp(`^${label}`))
-    }
+    expect(shouts).toHaveLength(1)
+    const shout = shouts[0]
+    expect(shout).toHaveTextContent('碰')
+    expect(shout).toHaveTextContent('Pung!')
+    expect(shout).toHaveAttribute('aria-hidden', 'true')
+    // On the board, not at a seat, and it says who called.
+    expect(shout.closest('.rivers')).not.toBeNull()
+    expect(shout.closest('section')).toBeNull()
+    expect(shout.querySelector('.shout-by')).toHaveTextContent(SOLO.names[e.seat])
     const fresh = Array.from(container.querySelectorAll('.meld-fresh'))
     expect(fresh.length).toBeGreaterThan(0)
     for (const m of fresh) expect(m.getAttribute('aria-label')).toMatch(/pung of/)
@@ -57,6 +57,7 @@ describe('Table', () => {
     expect(container.querySelector('.table-won')).not.toBeNull()
     const shout = container.querySelector('.shout-win')
     expect(shout).toHaveTextContent(r.from === null ? '自摸' : '食糊')
+    expect(shout?.querySelector('.shout-by')).toHaveTextContent(SOLO.names[r.winner])
     expect(container.querySelectorAll('.shower-tile')).toHaveLength(SHOWER_SIZE)
     expect(container.querySelector(r.winner === SOLO.me ? '.you-winner' : '.seat-winner')).not.toBeNull()
   })

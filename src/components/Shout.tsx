@@ -14,10 +14,10 @@ const CALLS = {
 } as const
 
 /**
- * The call bursting over the seat that made it, the way a comic book draws a
- * blow. The status line already says it in words, so this is for the eye.
+ * The call bursting over the board, the way a comic book draws a blow, with
+ * the caller's name on a tag. The status line says it in words; this is for the eye.
  */
-export default function Shout({ call }: { call: Call | null }) {
+export default function Shout({ call, by = null }: { call: Call | null; by?: string | null }) {
   // Ids for the halftone pattern and its mask; one burst per seat and layout, so they must not collide.
   const id = useId().replace(/[^a-zA-Z0-9]/g, '')
   if (!call) return null
@@ -52,6 +52,7 @@ export default function Shout({ call }: { call: Call | null }) {
       <span className="shout-cjk" lang="zh-Hant">
         {c.cjk}
       </span>
+      {by && <span className="shout-by">{by}</span>}
     </span>
   )
 }

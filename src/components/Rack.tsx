@@ -6,7 +6,6 @@ import { WIND_NAME, formatPoints } from '../names'
 import { useSeating } from '../seat'
 import { play } from '../sound'
 import { Flowers, MeldRow } from './Melds'
-import Shout from './Shout'
 import Tile from './Tile'
 
 interface Props {
@@ -138,7 +137,6 @@ export default function Rack({ state, selected, onSelect, onDiscard, guide = nul
           <span className="sr-only"> points</span>
         </span>
       </footer>
-      <Shout call={call} />
     </section>
   )
 }
