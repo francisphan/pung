@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { gameOverNote, guide, resultNote } from './coach'
 import Friends from './components/Friends'
 import GameOver from './components/GameOver'
@@ -74,6 +74,12 @@ export default function App() {
   const lesson = page === 'learn' && guided ? solo.lesson : null
   // While a card covers the table, what lies under it is inert, so the keyboard stays in the card.
   const modal = lesson !== null || (state !== null && ((state.phase === 'handEnd' && !celebrating) || state.phase === 'gameEnd'))
+  // A card takes focus when it opens; when it closes, the table takes it back rather than the page losing it.
+  const wasModal = useRef(false)
+  useEffect(() => {
+    if (wasModal.current && !modal && document.activeElement === document.body) document.getElementById('main')?.focus({ preventScroll: true })
+    wasModal.current = modal
+  }, [modal])
 
   // A solo table, plain or guided.
   const soloTable = (s: NonNullable<typeof solo.state>) => (

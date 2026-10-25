@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import type { Guidance } from '../coach'
 import { canSelfWin, kongOptions, type Claim, type Decision, type GameState } from '../engine/game'
 import { tileName, type StandardId } from '../engine/tiles'
@@ -33,6 +34,12 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
   const last = state.log[state.log.length - 1]
   const win = myTurn ? canSelfWin(state, me) : null
   const kongs = myTurn ? kongOptions(state, me) : []
+  // A button that goes away when pressed would drop focus to the page; the status line takes it instead.
+  const statusRef = useRef<HTMLParagraphElement>(null)
+  const keepFocus = () =>
+    requestAnimationFrame(() => {
+      if (document.activeElement === document.body) statusRef.current?.focus({ preventScroll: true })
+    })
 
   let status: string
   let coached = false
@@ -79,6 +86,7 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
               碰
             </span>
             Pung
+            <span className="sr-only"> {tileName(claim!.tile)}</span>
           </>
         )
       case 'kong':
@@ -88,6 +96,7 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
               槓
             </span>
             Kong
+            <span className="sr-only"> {tileName(claim!.tile)}</span>
           </>
         )
       case 'win':
@@ -97,6 +106,7 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
               糊
             </span>
             Win
+            <span className="sr-only"> on {tileName(claim!.tile)}</span>
           </>
         )
     }
@@ -104,7 +114,7 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
 
   return (
     <div className="actions">
-      <p className={`status${coached ? ' status-coach' : ''}`} role="status">
+      <p className={`status${coached ? ' status-coach' : ''}`} role="status" ref={statusRef} tabIndex={-1}>
         {coached && <span className="coach-tag">Coach</span>}
         {status}
       </p>
@@ -113,7 +123,16 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
           claim.options[me]!.map((c, i) => {
             const p = press(litClaim(c))
             return (
-              <button key={i} type="button" className={`act${c.kind === 'win' ? ' act-win' : ''}${p.className}`} disabled={p.disabled} onClick={() => onDecide(c)}>
+              <button
+                key={i}
+                type="button"
+                className={`act${c.kind === 'win' ? ' act-win' : ''}${p.className}`}
+                disabled={p.disabled}
+                onClick={() => {
+                  onDecide(c)
+                  keepFocus()
+                }}
+              >
                 {claimLabel(c)}
               </button>
             )
@@ -123,7 +142,10 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
             type="button"
             className={`act act-pass${press(litClaim({ kind: 'pass' })).className}`}
             disabled={press(litClaim({ kind: 'pass' })).disabled}
-            onClick={() => onDecide({ kind: 'pass' })}
+            onClick={() => {
+              onDecide({ kind: 'pass' })
+              keepFocus()
+            }}
           >
             <span className="act-cjk" lang="zh-Hant" aria-hidden="true">
               過
@@ -132,7 +154,15 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
           </button>
         )}
         {win && (
-          <button type="button" className={`act act-win${press(litWin).className}`} disabled={press(litWin).disabled} onClick={onSelfWin}>
+          <button
+            type="button"
+            className={`act act-win${press(litWin).className}`}
+            disabled={press(litWin).disabled}
+            onClick={() => {
+              onSelfWin()
+              keepFocus()
+            }}
+          >
             <span className="act-cjk" lang="zh-Hant" aria-hidden="true">
               糊
             </span>
@@ -140,7 +170,16 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
           </button>
         )}
         {kongs.map((k) => (
-          <button key={k.tile} type="button" className={`act${press(litKong === k.tile).className}`} disabled={press(litKong === k.tile).disabled} onClick={() => onKong(k.tile)}>
+          <button
+            key={k.tile}
+            type="button"
+            className={`act${press(litKong === k.tile).className}`}
+            disabled={press(litKong === k.tile).disabled}
+            onClick={() => {
+              onKong(k.tile)
+              keepFocus()
+            }}
+          >
             <span className="act-cjk" lang="zh-Hant" aria-hidden="true">
               槓
             </span>
@@ -152,7 +191,15 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
           </button>
         ))}
         {myTurn && selectedTile && (
-          <button type="button" className={`act act-discard${press(!!litDiscard).className}`} disabled={press(!!litDiscard).disabled} onClick={() => onDiscard(selectedTile)}>
+          <button
+            type="button"
+            className={`act act-discard${press(!!litDiscard).className}`}
+            disabled={press(!!litDiscard).disabled}
+            onClick={() => {
+              onDiscard(selectedTile)
+              keepFocus()
+            }}
+          >
             Discard {tileName(selectedTile)}
           </button>
         )}

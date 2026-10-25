@@ -57,11 +57,16 @@ export default function Opponent({ state, seat, layout, call = null }: Props) {
         <span className="seat-name">{name}</span>
         {dealer && (
           <span className="dealer-mark" title="Dealer">
-            <span lang="zh-Hant">莊</span>
+            <span lang="zh-Hant" aria-hidden="true">
+              莊
+            </span>
             <span className="sr-only"> dealer</span>
           </span>
         )}
-        <span className="seat-score">{formatPoints(p.score)}</span>
+        <span className="seat-score">
+          {formatPoints(p.score)}
+          <span className="sr-only"> points</span>
+        </span>
       </header>
       {layout === 'chip' && !revealed ? (
         <div className="seat-count">{n} in hand</div>

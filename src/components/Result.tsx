@@ -32,8 +32,13 @@ function WinningHand({ r }: { r: WinResult }) {
     offset += g.length
     return s
   })
+  // One picture for assistive tech, naming each set, since nothing inside an image is read.
+  const sets = [
+    ...r.hand.melds.map((m) => `${m.kind === 'kong' ? (m.open ? 'kong' : 'concealed kong') : m.kind} of ${tileName(m.tiles[0])}`),
+    ...groups.map((g) => g.map(tileName).join(', ')),
+  ]
   return (
-    <div className="win-hand" role="img" aria-label={`Winning hand, completed by ${tileName(r.winningTile)}`}>
+    <div className="win-hand" role="img" aria-label={`Winning hand: ${sets.join('; ')}; completed by ${tileName(r.winningTile)}`}>
       {r.hand.melds.map((m, i) => (
         <Meld key={`m${i}`} meld={m} size={38} />
       ))}
