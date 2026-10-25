@@ -565,12 +565,12 @@ main:focus {
 .you-active .seat-name::before {
   content: '';
   display: inline-block;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--lacquer);
+  background: var(--bamboo);
   margin-right: 7px;
-  vertical-align: 2px;
+  vertical-align: 1px;
 }
 
 .dealer-mark {
@@ -581,7 +581,7 @@ main:focus {
   height: 20px;
   border-radius: 50%;
   background: var(--bone);
-  color: var(--lacquer);
+  color: var(--lacquer-deep);
   font-family: var(--font-cjk);
   font-weight: 900;
   font-size: 12px;
@@ -1065,11 +1065,24 @@ main:focus {
   border-collapse: collapse;
 }
 
+.standings th {
+  padding: 0 8px 2px 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-dim);
+  text-align: right;
+}
+
+.standings th:first-child {
+  text-align: left;
+}
+
 .standings td {
   padding: 5px 8px 5px 0;
 }
 
-.standings td:last-child {
+.standings td:last-child,
+.standings th:last-child {
   padding-right: 0;
 }
 
@@ -1418,9 +1431,7 @@ main:focus {
     transition: none;
   }
 
-  .river-latest,
-  .hand-tile-lit .tile-svg,
-  .act-lit {
+  .river-latest {
     animation: none;
   }
 }
@@ -2218,6 +2229,8 @@ main:focus {
 
   .shout-word,
   .shout-cjk,
+  .hand-tile-lit .tile-svg,
+  .act-lit,
   .seat-revealed .seat-rack .tile-svg,
   .seat-revealed .seat-reveal .tile-svg,
   .seat-winner .seat-rack,

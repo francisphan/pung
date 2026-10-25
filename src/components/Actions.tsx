@@ -47,7 +47,7 @@ export default function Actions({ state, selected, selectedTile, onDiscard, onSe
     status = guide.text
     coached = true
   } else if (claim) status = `${nameOf(seating, claim.from)} ${claim.source === 'kong' ? 'is adding' : 'discarded'} ${tileName(claim.tile)}.`
-  else if (myTurn) status = selected ? `Tap ${tileName(selectedTile!)} again to discard it.` : state.drawn ? 'Your turn. Pick a tile to discard.' : 'Pick a tile to discard.'
+  else if (myTurn) status = selected ? `Tap ${tileName(selectedTile!)} again to discard it.` : `${narrate(last, seating)} ${state.drawn ? 'Your turn. ' : ''}Pick a tile to discard.`
   else if (state.phase === 'discard') status = `${narrate(last, seating)} ${nameOf(seating, state.current)} is thinking.`
   else if (state.phase === 'claim') status = `${narrate(last, seating)} Waiting for the others.`
   else status = narrate(last, seating)

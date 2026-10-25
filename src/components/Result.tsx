@@ -137,7 +137,7 @@ export default function Result({ state, onNext, canAdvance = true, waitingFor = 
                 <div className="total-label">{r.score.limit ? 'faan, the limit' : 'faan'}</div>
                 <div className="total-points">
                   {formatPoints(r.points)} points
-                  {r.from === null ? ' from each player' : `, ${nameOf(seating, r.from, true)} ${conjugate(seating, r.from, 'pay', 'pays')} in full`}
+                  {r.from === null ? ' from each player' : `: ${nameOf(seating, r.from, true)} ${conjugate(seating, r.from, 'pay', 'pays')} in full, the others half`}
                 </div>
               </div>
             </div>
@@ -151,7 +151,7 @@ export default function Result({ state, onNext, canAdvance = true, waitingFor = 
         )}
         <table className="standings">
           <caption className="sr-only">Standings</caption>
-          <thead className="sr-only">
+          <thead>
             <tr>
               <th scope="col">Player</th>
               <th scope="col">This hand</th>

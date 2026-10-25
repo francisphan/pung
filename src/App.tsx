@@ -253,8 +253,8 @@ export default function App() {
               </Link>
             )}
             {guided && page === 'learn' && <span className="masthead-code masthead-note">Guided round</span>}
-            <button type="button" className="link-btn" onClick={() => setSettings({ sound: !settings.sound })}>
-              {settings.sound ? 'Sound off' : 'Sound on'}
+            <button type="button" className="link-btn" aria-pressed={settings.sound} onClick={() => setSettings({ sound: !settings.sound })}>
+              Sound <span aria-hidden="true">{settings.sound ? 'on' : 'off'}</span>
             </button>
             {page === 'friends' && inRoom && room?.status !== 'lobby' && (
               <button type="button" className="link-btn" onClick={leave}>
