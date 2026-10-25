@@ -25,12 +25,19 @@ export default function Learn({ inProgress, onStart }: Props) {
         <li>Winning, and how the faan and the points are counted.</li>
         <li>The second hand: the deal moving round, and the seat winds with it.</li>
       </ul>
+      {inProgress && <p className="lobby-foot">This replaces the solo game you have going.</p>}
       <div className="lobby-actions">
-        <button type="button" className="act act-primary" onClick={onStart}>
+        <button
+          type="button"
+          className="act act-primary"
+          onClick={() => {
+            if (inProgress && !window.confirm('Start the guided round? It replaces the solo game you have going.')) return
+            onStart()
+          }}
+        >
           Play a guided round
         </button>
       </div>
-      {inProgress && <p className="lobby-foot">This replaces the solo game you have going.</p>}
 
       <h3 className="lobby-sub">Prefer to read first?</h3>
       <p className="lobby-copy">Five short lessons, from the tiles to the scoring, each with something to try.</p>

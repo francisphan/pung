@@ -196,7 +196,7 @@ export default function Sets() {
         <h3>Putting it together</h3>
         <p>
           Any mix of chows, pungs and kongs works: four chows, four pungs, or anything between. Flip the
-          hand on the left between sorted and grouped to see the five pieces hiding in fourteen tiles.
+          hand between sorted and grouped to see the five pieces hiding in fourteen tiles.
         </p>
         <p>
           Sets you build from your own draws stay hidden in your rack. Sets you complete by claiming a
@@ -207,7 +207,7 @@ export default function Sets() {
         <p>
           When thirteen tiles need just one more, the hand is <Term id="ready">ready</Term>, and the tiles that
           would finish it are its <Term id="wait">waits</Term>. A one-two waits on a three. A three-four
-          waits on a two or a five. Two pairs wait on either one. Try the puzzles on the left; the last one is a
+          waits on a two or a five. Two pairs wait on either one. Try the puzzles; the last one is a
           famous hand that waits on all nine tiles of a suit.
         </p>
       </div>

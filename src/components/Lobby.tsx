@@ -26,7 +26,7 @@ export default function Lobby({ settings, inProgress, onStart, onSettings, onBac
       </div>
       <h2 className="lobby-title">Sit down at the table</h2>
       <p className="lobby-copy">
-        Hong Kong mahjong against Mei, Bo and Ling. You are East for the first hand. Tap a tile to pick it, tap it
+        Hong Kong mahjong against three bots, Mei, Bo and Ling. You are East for the first hand. Tap a tile to pick it, tap it
         again to discard. When a discard suits you, the table offers chow, pung, kong or the win.
       </p>
       <RuleChoices rules={rules} onChange={setRules} />
@@ -47,6 +47,7 @@ export default function Lobby({ settings, inProgress, onStart, onSettings, onBac
           </button>
         )}
       </div>
+      {inProgress && <p className="lobby-foot">Dealing replaces the game you have going.</p>}
 
       <ul className="doors">
         <li>

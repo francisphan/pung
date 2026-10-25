@@ -18,6 +18,7 @@ export default function Primer({ lesson }: { lesson: LessonId }) {
     const h = window.location.hash.replace('#', '')
     if (h.startsWith('term-')) document.getElementById(h)?.scrollIntoView()
   }, [lesson])
+  const next: LessonId | undefined = LESSONS[LESSONS.indexOf(lesson) + 1]
 
   return (
     <div className="primer">
@@ -36,6 +37,17 @@ export default function Primer({ lesson }: { lesson: LessonId }) {
       {lesson === 'round' && <Round />}
       {lesson === 'scoring' && <Scoring />}
       {lesson === 'glossary' && <Glossary />}
+      <p className="primer-next">
+        {next ? (
+          <>
+            Next lesson: <Link page={`learn/${next}`}>{LESSON_INFO[next].label}</Link>
+          </>
+        ) : (
+          <>
+            That was the last lesson. <Link page="learn">Back to Learn to play</Link>
+          </>
+        )}
+      </p>
       <p className="primer-foot">
         Ready to try it? <Link page="learn">Play a guided round</Link>, where the coach picks every move and says why, or{' '}
         <Link page="home">deal a game</Link>.

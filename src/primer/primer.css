@@ -116,10 +116,6 @@
     position: static;
 }
 
-.primer .lesson:not(.lesson-drill) > .stage {
-    order: -1;
-}
-
 }
 
 .primer .stage-bar {
@@ -663,32 +659,41 @@
 }
 
 .primer .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 8px 16px;
+  border: 1.5px solid var(--lacquer-shade);
+  border-bottom-width: 4px;
+  border-radius: 8px;
+  background: var(--lacquer-deep);
+  color: var(--bone);
   font-family: var(--font-body);
   font-weight: 700;
   font-size: 16px;
-  padding: 9px 16px;
-  border: 2px solid var(--lacquer);
-  background: var(--lacquer);
-  color: #fff;
-  border-radius: 4px;
-  cursor: pointer;
   line-height: 1.1;
+  cursor: pointer;
 }
 
 .primer .btn:hover {
-  background: var(--lacquer-deep);
-  border-color: var(--lacquer-deep);
+  background: var(--lacquer);
+}
+
+.primer .btn:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
 }
 
 .primer .btn-quiet {
-  background: transparent;
-  color: var(--bone);
-  border-color: var(--bone-dim);
+  background: var(--bone);
+  color: var(--ink);
+  border-color: var(--bone-edge);
+  border-bottom-color: var(--bone-shade);
 }
 
 .primer .btn-quiet:hover {
-  background: var(--felt-light);
-  border-color: var(--bone);
+  background: #fbf5e4;
 }
 
 .primer .btn:disabled,
@@ -723,8 +728,9 @@
   align-items: flex-start;
   padding: 6px 12px 7px;
   border: 1.5px solid var(--bone-dim);
+  border-bottom-width: 4px;
   background: transparent;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-family: var(--font-body);
   color: var(--bone);
@@ -750,6 +756,7 @@
 .primer .seg-on,
 .primer .seg-on:hover {
   border-color: var(--bone);
+  border-bottom-color: var(--bone-shade);
   background: var(--bone);
   color: var(--ink);
 }
@@ -777,9 +784,10 @@
   font-size: 15px;
   padding: 9px 12px;
   border: 1.5px solid var(--bone-dim);
+  border-bottom-width: 4px;
   background: transparent;
   color: var(--bone);
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   text-align: left;
   line-height: 1.2;
@@ -791,13 +799,13 @@
 
 .primer .quiz-opt-right {
   background: var(--jade-deep);
-  border-color: var(--jade-deep);
+  border-color: var(--jade-shade);
   color: #fff;
 }
 
 .primer .quiz-opt-wrong {
-  background: var(--lacquer);
-  border-color: var(--lacquer);
+  background: var(--lacquer-deep);
+  border-color: var(--lacquer-shade);
   color: #fff;
 }
 
@@ -956,6 +964,7 @@
 
 .primer .glossary-item {
   display: grid;
+  scroll-margin-top: 16px;
   grid-template-columns: 230px minmax(0, 1fr);
   gap: 6px 24px;
   padding: 14px 0;
@@ -1058,6 +1067,11 @@
     transition: none;
 }
 
+}
+
+.primer .primer-next {
+  margin: 32px 0 0;
+  font-weight: 700;
 }
 
 .primer .primer-foot {

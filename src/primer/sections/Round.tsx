@@ -14,7 +14,7 @@ export default function Round() {
         <h2 id="round-title">How a round flows</h2>
         <p className="lede">
           Four players, one <Term id="wall">wall</Term>, and the same short turn over and over: draw one,
-          discard one. Step through a hand on the left. You sit at the bottom.
+          discard one. Step through a hand at the table. You sit at the bottom.
         </p>
 
         <h3>Seats and winds</h3>

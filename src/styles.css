@@ -1681,6 +1681,12 @@ main:focus {
   color: var(--bone-dim);
 }
 
+.field-hint {
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--bone-dim);
+}
+
 .field input {
   font: inherit;
   font-size: 16px;

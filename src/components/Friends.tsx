@@ -50,6 +50,7 @@ export default function Friends({ settings, online, joinCode, onHost, onJoin, on
                 placeholder="Guest"
                 onChange={(e) => onSettings({ name: e.target.value })}
               />
+              <span className="field-hint">Shown to the others at the table, whether you host or join.</span>
             </label>
           </div>
           <div className="friends-row">
