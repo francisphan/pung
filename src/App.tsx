@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { gameOverNote, guide, resultNote } from './coach'
 import Friends from './components/Friends'
 import GameOver from './components/GameOver'
@@ -9,7 +9,6 @@ import Lobby from './components/Lobby'
 import Result from './components/Result'
 import RoomLobby from './components/RoomLobby'
 import Table from './components/Table'
-import Primer from './primer/Primer'
 import { LESSON_INFO } from './primer/catalog'
 import { useCelebration } from './hooks/useCelebration'
 import { useGame, useSettings } from './hooks/useGame'
@@ -22,6 +21,9 @@ import { cleanCode, type RoomInfo } from './net/protocol'
 import { serverUrl } from './net/serverUrl'
 import { NavContext, lessonOf, usePage } from './router'
 import { SeatingContext } from './seat'
+
+// The primer is the one part most visitors never open, so it loads only when a lesson does.
+const Primer = lazy(() => import('./primer/Primer'))
 
 function seatingOf(room: RoomInfo): Seating {
   const names = room.seats.map((s, i) => (s.kind === 'open' ? WIND_NAME[WINDS[i]] : s.name))
@@ -205,7 +207,11 @@ export default function App() {
       )
     }
   } else if (lessonPage) {
-    main = <Primer lesson={lessonPage} />
+    main = (
+      <Suspense fallback={null}>
+        <Primer lesson={lessonPage} />
+      </Suspense>
+    )
   } else if (page === 'learn') {
     main = guided && solo.state ? soloTable(solo.state) : <Learn inProgress={!!solo.state && !solo.tutorial} onStart={solo.startTutorial} />
   } else if (soloPlaying && solo.state) {

@@ -57,7 +57,7 @@ describe('App', () => {
     await user.click(screen.getByRole('link', { name: 'Learn to play' }))
     await user.click(screen.getByRole('link', { name: /^The tiles/ }))
     expect(window.location.pathname).toMatch(/\/learn\/tiles\/$/)
-    expect(screen.getByRole('heading', { name: 'The tiles' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'The tiles' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Learn to play' })).toHaveAttribute('aria-current', 'page')
   })
 
