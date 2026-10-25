@@ -216,7 +216,7 @@ main:focus {
 .page-link {
   display: inline-block;
   touch-action: manipulation;
-  padding: 8px 12px 6px;
+  padding: 10px 12px 8px;
   border-bottom: 3px solid transparent;
   color: var(--bone-dim);
   font-weight: 700;
@@ -226,6 +226,23 @@ main:focus {
 
 .page-link:hover {
   color: var(--bone);
+}
+
+/* The narrowest phones: the three tabs fit the row rather than scrolling off it. */
+@media (max-width: 379px) {
+  .pages {
+    gap: 0;
+  }
+
+  .page-link {
+    padding: 10px 8px 8px;
+  }
+}
+
+@media (max-width: 329px) {
+  .pages {
+    flex-wrap: wrap;
+  }
 }
 
 .page-link[aria-current='page'] {
@@ -541,7 +558,7 @@ main:focus {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 9em;
+  min-width: 0;
 }
 
 .seat-active .seat-name::before,
@@ -620,9 +637,10 @@ main:focus {
   gap: 3px;
 }
 
+/* Wind, name and dealer mark on one line; the score joins them when it fits and takes a line of its own otherwise. */
 .seat-chip .seat-head {
   gap: 5px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   white-space: nowrap;
 }
 
@@ -1229,6 +1247,24 @@ main:focus {
     min-height: 0;
   }
 
+  /* The rack and its actions stay at the foot of the screen while the rivers grow above them. */
+  .area-rack {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+    background: var(--felt);
+  }
+
+  /* The block grows upward from the rack, so an empty action row need not hold its height. */
+  .actions {
+    min-height: 0;
+  }
+
+  .act-row:empty {
+    min-height: 0;
+  }
+
   .rivers {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-rows: auto auto auto;
@@ -1299,7 +1335,7 @@ main:focus {
 
 /* Short screens, such as an iPad held sideways: tighter racks so the table fits without scrolling */
 
-@media (max-height: 900px) and (min-width: 720px) {
+@media (max-height: 860px) and (min-width: 720px) {
   :root {
     --tile-hand: clamp(22px, calc((100vw - 90px) / 14.4), 46px);
   }
@@ -1315,7 +1351,12 @@ main:focus {
   }
 
   .seat-side .seat-open .tile-svg {
-    width: 22px;
+    width: 26px;
+    height: auto;
+  }
+
+  .river .tile-svg {
+    width: 26px;
     height: auto;
   }
 
@@ -1524,7 +1565,14 @@ main:focus {
   }
 }
 
-@media (max-height: 900px) and (min-width: 1000px) {
+/* A 1024-wide iPad with the log beside the table: narrower columns, so the table still fits the height. */
+@media (min-width: 1000px) and (max-width: 1100px) {
+  .table-with-log {
+    grid-template-columns: 96px minmax(0, 1fr) 96px 180px;
+  }
+}
+
+@media (max-height: 860px) and (min-width: 1000px) {
   .table-with-log {
     --tile-hand: clamp(22px, calc((100vw - 340px) / 14.4), 46px);
   }
