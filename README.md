@@ -1,5 +1,7 @@
 # Pung
 
+<img src="assets/pung-mascot.png" alt="Pung mascot: a Pekingese in a green dealer's visor behind a pung of three red dragon tiles" width="96">
+
 Hong Kong mahjong you can actually play: against three opponents, or with friends around one table, in the browser, with nothing to install. 碰 (pung) is the call for claiming a discard to complete a set.
 
 Live: https://francisphan.github.io/pung/
