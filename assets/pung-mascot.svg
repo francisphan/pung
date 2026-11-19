@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs><clipPath id="c"><circle cx="256" cy="256" r="252"/></clipPath></defs>
+  <circle cx="256" cy="256" r="252" fill="#8C2F39"/>
+  <g clip-path="url(#c)" stroke-linejoin="round">
+    <!-- mane -->
+    <ellipse cx="256" cy="250" rx="146" ry="128" fill="#D9AE6E"/><circle cx="388" cy="292" r="22" fill="#D9AE6E"/><circle cx="355" cy="338" r="22" fill="#D9AE6E"/><circle cx="304" cy="367" r="22" fill="#D9AE6E"/><circle cx="256" cy="374" r="22" fill="#D9AE6E"/><circle cx="208" cy="367" r="22" fill="#D9AE6E"/><circle cx="157" cy="338" r="22" fill="#D9AE6E"/><circle cx="124" cy="292" r="22" fill="#D9AE6E"/>
+    <!-- long fringed ears hanging beside the face -->
+    <path d="M178,150 C138,156 116,196 112,250 C108,300 112,350 124,388 L138,372 L148,396 L160,374 L172,394 L180,368 C188,320 190,240 196,176 Z" fill="#A9733E"/>
+    <path d="M334,150 C374,156 396,196 400,250 C404,300 400,350 388,388 L374,372 L364,396 L352,374 L340,394 L332,368 C324,320 322,240 316,176 Z" fill="#A9733E"/>
+    <!-- broad flat face -->
+    <path d="M256,150 C318,150 356,178 360,226 C364,270 340,312 300,330 C284,338 270,340 256,340 C242,340 228,338 212,330 C172,312 148,270 152,226 C156,178 194,150 256,150 Z" fill="#F0D9AE"/>
+    <!-- dark muzzle and eye rims -->
+    <path d="M214,268 Q256,250 298,268 Q306,300 282,322 Q256,334 230,322 Q206,300 214,268 Z" fill="#3A2A20"/>
+    <circle cx="204" cy="238" r="29" fill="#3A2A20"/>
+    <circle cx="308" cy="238" r="29" fill="#3A2A20"/>
+    <path d="M222,258 Q256,240 290,258" fill="none" stroke="#B9844A" stroke-width="7" stroke-linecap="round"/>
+    <!-- big round eyes -->
+    <circle cx="204" cy="238" r="21" fill="#111216"/><circle cx="212" cy="230" r="6" fill="#F7F3EC"/>
+    <circle cx="308" cy="238" r="21" fill="#111216"/><circle cx="316" cy="230" r="6" fill="#F7F3EC"/>
+    <!-- wide flat nose and a small mouth -->
+    <path d="M236,272 L276,272 Q278,290 262,294 L250,294 Q234,290 236,272 Z" fill="#111216"/>
+    <path d="M244,308 Q256,318 268,308" fill="none" stroke="#F0D9AE" stroke-width="6" stroke-linecap="round"/>
+    <!-- green dealer's visor cap -->
+    <path d="M168,150 Q256,118 344,150 L344,172 Q256,144 168,172 Z" fill="#2E7D4F" stroke="#2E7D4F" stroke-width="8"/>
+    <path d="M160,170 Q256,140 352,170 L384,208 Q256,176 128,208 Z" fill="#46A36B" stroke="#46A36B" stroke-width="6"/>
+    <!-- a pung: three red dragon (中) tiles, ivory faces on green backs -->
+    <g>
+      <rect x="131" y="356" width="78" height="122" rx="11" fill="#2E7D4F"/>
+      <rect x="131" y="356" width="78" height="104" rx="11" fill="#F7F3EC"/>
+      <path transform="translate(134.5 431.9) scale(0.0682 -0.0682)" d="M786 333H561V600H786ZM598 833 436 849V629H223L90 681V205H108C159 205 213 233 213 246V304H436V-89H460C507 -89 561 -59 561 -45V304H786V221H807C848 221 910 243 911 250V580C931 584 945 593 951 601L833 691L777 629H561V804C588 808 596 819 598 833ZM213 333V600H436V333Z" fill="#C8202A"/>
+      <rect x="217" y="356" width="78" height="122" rx="11" fill="#2E7D4F"/>
+      <rect x="217" y="356" width="78" height="104" rx="11" fill="#F7F3EC"/>
+      <path transform="translate(220.5 431.9) scale(0.0682 -0.0682)" d="M786 333H561V600H786ZM598 833 436 849V629H223L90 681V205H108C159 205 213 233 213 246V304H436V-89H460C507 -89 561 -59 561 -45V304H786V221H807C848 221 910 243 911 250V580C931 584 945 593 951 601L833 691L777 629H561V804C588 808 596 819 598 833ZM213 333V600H436V333Z" fill="#C8202A"/>
+      <rect x="303" y="356" width="78" height="122" rx="11" fill="#2E7D4F"/>
+      <rect x="303" y="356" width="78" height="104" rx="11" fill="#F7F3EC"/>
+      <path transform="translate(306.5 431.9) scale(0.0682 -0.0682)" d="M786 333H561V600H786ZM598 833 436 849V629H223L90 681V205H108C159 205 213 233 213 246V304H436V-89H460C507 -89 561 -59 561 -45V304H786V221H807C848 221 910 243 911 250V580C931 584 945 593 951 601L833 691L777 629H561V804C588 808 596 819 598 833ZM213 333V600H436V333Z" fill="#C8202A"/>
+    </g>
+  </g>
+</svg>
